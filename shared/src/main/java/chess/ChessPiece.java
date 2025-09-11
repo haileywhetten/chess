@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -10,7 +12,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -29,14 +36,15 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+
+        return type;
     }
 
     /**
@@ -47,6 +55,100 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return moveCalculator(board, myPosition);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    private Collection<ChessMove> moveCalculator(ChessBoard board, ChessPosition myPosition) {
+        if (type == PieceType.BISHOP){
+            return bishopMove(board, myPosition);
+        }
+        return null;
+    }
+    private Collection<ChessMove> bishopMove(ChessBoard board, ChessPosition myPosition) {
+        var moves = new HashSet<ChessMove>();
+        boolean validMove = true;
+        int currRow = myPosition.getRow();
+        int currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow++;
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, type);
+                moves.add(newMove);
+            }
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, type);
+                moves.add(newMove);
+            }
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, type);
+                moves.add(newMove);
+            }
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow++;
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, type);
+                moves.add(newMove);
+            }
+        }
+        return moves;
+    }
+
+    private boolean isPositionValid(ChessBoard board, ChessPosition myPosition){
+        if (myPosition.getRow() < 1 || myPosition.getColumn() < 1) {
+            return false;
+        }
+        else if (myPosition.getRow() > 8 || myPosition.getColumn() > 8) {
+            return false;
+        }
+        else if (board.getPiece(myPosition) != null && board.getPiece(myPosition).getTeamColor().equals(pieceColor)) {
+            return false;
+        }
+        else {return true; }
     }
 }
