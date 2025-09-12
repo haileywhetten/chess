@@ -76,6 +76,21 @@ public class ChessPiece {
         if (type == PieceType.BISHOP){
             return bishopMove(board, myPosition);
         }
+        if(type == PieceType.KING) {
+            return kingMove(board, myPosition);
+        }
+        if(type == PieceType.KNIGHT) {
+            return knightMove(board, myPosition);
+        }
+        if(type == PieceType.PAWN) {
+            return pawnMove(board, myPosition);
+        }
+        if(type == PieceType.QUEEN) {
+            return queenMove(board, myPosition);
+        }
+        if(type == PieceType.ROOK) {
+            return rookMove(board, myPosition);
+        }
         return null;
     }
     private Collection<ChessMove> bishopMove(ChessBoard board, ChessPosition myPosition) {
@@ -91,7 +106,7 @@ public class ChessPiece {
             validMove = isPositionValid(board, newPosition);
 
             if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, type);
+                var newMove = new ChessMove(myPosition, newPosition, null);
                 moves.add(newMove);
                 if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
                     validMove = false;
@@ -110,7 +125,7 @@ public class ChessPiece {
             validMove = isPositionValid(board, newPosition);
 
             if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, type);
+                var newMove = new ChessMove(myPosition, newPosition, null);
                 moves.add(newMove);
                 if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
                     validMove = false;
@@ -129,7 +144,7 @@ public class ChessPiece {
             validMove = isPositionValid(board, newPosition);
 
             if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, type);
+                var newMove = new ChessMove(myPosition, newPosition, null);
                 moves.add(newMove);
                 if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
                     validMove = false;
@@ -148,7 +163,7 @@ public class ChessPiece {
             validMove = isPositionValid(board, newPosition);
 
             if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, type);
+                var newMove = new ChessMove(myPosition, newPosition, null);
                 moves.add(newMove);
                 if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
                     validMove = false;
@@ -157,6 +172,31 @@ public class ChessPiece {
 
         }
         return moves;
+    }
+    private Collection<ChessMove> kingMove(ChessBoard board, ChessPosition myPosition) {
+
+        return null;
+    }
+    private Collection<ChessMove> knightMove(ChessBoard board, ChessPosition myPosition) {
+        var moves = new HashSet<ChessMove>();
+        return null;
+    }
+    private Collection<ChessMove> pawnMove(ChessBoard board, ChessPosition myPosition) {
+        var moves = new HashSet<ChessMove>();
+        return null;
+    }
+    private Collection<ChessMove> queenMove(ChessBoard board, ChessPosition myPosition) {
+        var queenMoves = new HashSet<ChessMove>();
+        Collection<ChessMove> bishopMoves = bishopMove(board, myPosition);
+        Collection<ChessMove> rookMoves = rookMove(board, myPosition);
+        return null;
+    }
+    private Collection<ChessMove> rookMove(ChessBoard board, ChessPosition myPosition) {
+        var moves = new HashSet<ChessMove>();
+        boolean validMove = true;
+        int currRow = myPosition.getRow();
+        int currCol = myPosition.getColumn();
+        return null;
     }
 
     private boolean isPositionValid(ChessBoard board, ChessPosition myPosition){
