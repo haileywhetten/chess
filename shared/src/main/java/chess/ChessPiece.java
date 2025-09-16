@@ -296,7 +296,63 @@ public class ChessPiece {
     }
     private Collection<ChessMove> pawnMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
-        return null;
+        int currRow = myPosition.getRow();
+        int currCol = myPosition.getColumn();
+        int direction = 0;
+        boolean validMove = true;
+        if (pieceColor.equals(ChessGame.TeamColor.WHITE)) {
+            direction = 1;
+        }
+        else {
+            direction = -1;
+        }
+        var newPosition1 = new ChessPosition(currRow + direction, currCol);
+        validMove = isPositionValid(board, newPosition1);
+        if(board.getPiece(newPosition1) != null) {
+            validMove = false;
+        }
+        if((validMove) && (currRow + direction != 8 && currRow + direction != 1)) {
+            var newMove = new ChessMove(myPosition, newPosition1, null);
+            moves.add(newMove);
+        }
+        if(currRow == 2 || currRow == 7) {
+            var newPosition2 = new ChessPosition(currRow + (2*(direction)), currCol);
+            validMove = isPositionValid(board, newPosition2);
+            if(board.getPiece(newPosition2) != null) {
+                validMove = false;
+            }
+            if(validMove) {
+                var newMove2 = new ChessMove(myPosition, newPosition2, null);
+                moves.add(newMove2);
+            }
+        }
+        if((currRow + direction == 8) || (currRow + direction == 1)) {
+            var newPosition3 = new ChessPosition(currRow + direction, currCol);
+            validMove = isPositionValid(board, newPosition3);
+            if(validMove) {
+                var newMove1 = new ChessMove(myPosition, newPosition3, PieceType.BISHOP);
+                moves.add(newMove1);
+                var newMove2 = new ChessMove(myPosition, newPosition3, PieceType.ROOK);
+                moves.add(newMove2);
+                var newMove3 = new ChessMove(myPosition, newPosition3, PieceType.QUEEN);
+                moves.add(newMove3);
+                var newMove4 = new ChessMove(myPosition, newPosition3, PieceType.KNIGHT);
+                moves.add(newMove4);
+            }
+
+        }
+        var diagonal1 = new ChessPosition(currRow + direction, currCol + 1);
+        var diagonal2 = new ChessPosition(currRow + direction, currCol - 1);
+        if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor)) {
+            var diagonalMove = new ChessMove(myPosition, diagonal1, null);
+            moves.add(diagonalMove);
+        }
+        if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor)) {
+            var diagonalMove = new ChessMove(myPosition, diagonal2, null);
+            moves.add(diagonalMove);
+        }
+
+        return moves;
     }
     private Collection<ChessMove> queenMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
