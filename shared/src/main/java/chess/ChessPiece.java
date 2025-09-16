@@ -372,9 +372,13 @@ public class ChessPiece {
         if(currRow + direction == 8 || currRow + direction == 1){
             validMove = false;
         }
-        if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor) && validMove) {
+        if(validMove && ((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor))) {
             var diagonalMove = new ChessMove(myPosition, diagonal1, null);
             moves.add(diagonalMove);
+        }
+        validMove = isPositionValid(board, diagonal2);
+        if(currRow + direction == 8 || currRow + direction == 1){
+            validMove = false;
         }
         if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor) && validMove) {
             var diagonalMove = new ChessMove(myPosition, diagonal2, null);
