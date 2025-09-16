@@ -239,7 +239,60 @@ public class ChessPiece {
     }
     private Collection<ChessMove> knightMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
-        return null;
+        int currRow = myPosition.getRow();
+        int currCol = myPosition.getColumn();
+        boolean validMove = true;
+
+        var newPosition1 = new ChessPosition(currRow + 1, currCol + 2);
+        validMove = isPositionValid(board, newPosition1);
+        if(validMove) {
+            var newMove = new ChessMove(myPosition, newPosition1, null);
+            moves.add(newMove);
+        }
+        var newPosition2 = new ChessPosition(currRow + 1, currCol - 2);
+        validMove = isPositionValid(board, newPosition2);
+        if(validMove) {
+            var newMove = new ChessMove(myPosition, newPosition2, null);
+            moves.add(newMove);
+        }
+        var newPosition3 = new ChessPosition(currRow - 1, currCol + 2);
+        validMove = isPositionValid(board, newPosition3);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition3, null);
+            moves.add(newMove1);
+        }
+        var newPosition4 = new ChessPosition(currRow - 1, currCol - 2);
+        validMove = isPositionValid(board, newPosition4);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition4, null);
+            moves.add(newMove1);
+        }
+        var newPosition5 = new ChessPosition(currRow + 2, currCol + 1);
+        validMove = isPositionValid(board, newPosition5);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition5, null);
+            moves.add(newMove1);
+        }
+        var newPosition6 = new ChessPosition(currRow - 2, currCol + 1);
+        validMove = isPositionValid(board, newPosition6);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition6, null);
+            moves.add(newMove1);
+        }
+        var newPosition7 = new ChessPosition(currRow + 2, currCol - 1);
+        validMove = isPositionValid(board, newPosition7);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition7, null);
+            moves.add(newMove1);
+        }
+        var newPosition8 = new ChessPosition(currRow - 2, currCol - 1);
+        validMove = isPositionValid(board, newPosition8);
+        if(validMove) {
+            var newMove1 = new ChessMove(myPosition, newPosition8, null);
+            moves.add(newMove1);
+        }
+
+        return moves;
     }
     private Collection<ChessMove> pawnMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
