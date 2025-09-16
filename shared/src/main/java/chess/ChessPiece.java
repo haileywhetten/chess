@@ -315,10 +315,13 @@ public class ChessPiece {
             var newMove = new ChessMove(myPosition, newPosition1, null);
             moves.add(newMove);
         }
-        if(currRow == 2 || currRow == 7) {
+        if((currRow == 2 && pieceColor == ChessGame.TeamColor.WHITE) || (currRow == 7 && pieceColor == ChessGame.TeamColor.BLACK)) {
             var newPosition2 = new ChessPosition(currRow + (2*(direction)), currCol);
             validMove = isPositionValid(board, newPosition2);
             if(board.getPiece(newPosition2) != null) {
+                validMove = false;
+            }
+            if(board.getPiece(newPosition1) != null) {
                 validMove = false;
             }
             if(validMove) {
@@ -339,15 +342,41 @@ public class ChessPiece {
                 var newMove4 = new ChessMove(myPosition, newPosition3, PieceType.KNIGHT);
                 moves.add(newMove4);
             }
+            var diagonal1 = new ChessPosition(currRow + direction, currCol + 1);
+            var diagonal2 = new ChessPosition(currRow + direction, currCol - 1);
+            if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor)) {
+                var newMove1 = new ChessMove(myPosition, diagonal1, PieceType.BISHOP);
+                moves.add(newMove1);
+                var newMove2 = new ChessMove(myPosition, diagonal1, PieceType.ROOK);
+                moves.add(newMove2);
+                var newMove3 = new ChessMove(myPosition, diagonal1, PieceType.QUEEN);
+                moves.add(newMove3);
+                var newMove4 = new ChessMove(myPosition, diagonal1, PieceType.KNIGHT);
+                moves.add(newMove4);
+            }
+            if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor)) {
+                var newMove1 = new ChessMove(myPosition, diagonal2, PieceType.BISHOP);
+                moves.add(newMove1);
+                var newMove2 = new ChessMove(myPosition, diagonal2, PieceType.ROOK);
+                moves.add(newMove2);
+                var newMove3 = new ChessMove(myPosition, diagonal2, PieceType.QUEEN);
+                moves.add(newMove3);
+                var newMove4 = new ChessMove(myPosition, diagonal2, PieceType.KNIGHT);
+                moves.add(newMove4);
+            }
 
         }
         var diagonal1 = new ChessPosition(currRow + direction, currCol + 1);
         var diagonal2 = new ChessPosition(currRow + direction, currCol - 1);
-        if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor)) {
+        validMove = isPositionValid(board, diagonal1);
+        if(currRow + direction == 8 || currRow + direction == 1){
+            validMove = false;
+        }
+        if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor) && validMove) {
             var diagonalMove = new ChessMove(myPosition, diagonal1, null);
             moves.add(diagonalMove);
         }
-        if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor)) {
+        if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor) && validMove) {
             var diagonalMove = new ChessMove(myPosition, diagonal2, null);
             moves.add(diagonalMove);
         }
