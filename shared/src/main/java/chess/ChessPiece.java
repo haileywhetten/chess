@@ -309,7 +309,76 @@ public class ChessPiece {
         boolean validMove = true;
         int currRow = myPosition.getRow();
         int currCol = myPosition.getColumn();
-        return null;
+
+        while (validMove) {
+            currRow++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        return moves;
     }
 
     private boolean isPositionValid(ChessBoard board, ChessPosition myPosition){
