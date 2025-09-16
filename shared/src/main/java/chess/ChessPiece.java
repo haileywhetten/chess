@@ -299,10 +299,155 @@ public class ChessPiece {
         return null;
     }
     private Collection<ChessMove> queenMove(ChessBoard board, ChessPosition myPosition) {
-        var queenMoves = new HashSet<ChessMove>();
-        Collection<ChessMove> bishopMoves = bishopMove(board, myPosition);
-        Collection<ChessMove> rookMoves = rookMove(board, myPosition);
-        return null;
+        var moves = new HashSet<ChessMove>();
+        boolean validMove = true;
+        int currRow = myPosition.getRow();
+        int currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow++;
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow++;
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+        while (validMove) {
+            currRow++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currRow--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currCol++;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        validMove = true;
+        currRow = myPosition.getRow();
+        currCol = myPosition.getColumn();
+
+        while (validMove) {
+            currCol--;
+            var newPosition = new ChessPosition(currRow, currCol);
+            validMove = isPositionValid(board, newPosition);
+
+            if(validMove) {
+                var newMove = new ChessMove(myPosition, newPosition, null);
+                moves.add(newMove);
+                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
+                    validMove = false;
+                }
+            }
+
+        }
+        return moves;
     }
     private Collection<ChessMove> rookMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
