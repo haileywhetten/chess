@@ -344,7 +344,8 @@ public class ChessPiece {
             }
             var diagonal1 = new ChessPosition(currRow + direction, currCol + 1);
             var diagonal2 = new ChessPosition(currRow + direction, currCol - 1);
-            if((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor)) {
+            validMove = isPositionValid(board, diagonal1);
+            if(validMove && ((board.getPiece(diagonal1) != null) && (board.getPiece(diagonal1).getTeamColor() != pieceColor))) {
                 var newMove1 = new ChessMove(myPosition, diagonal1, PieceType.BISHOP);
                 moves.add(newMove1);
                 var newMove2 = new ChessMove(myPosition, diagonal1, PieceType.ROOK);
@@ -354,7 +355,8 @@ public class ChessPiece {
                 var newMove4 = new ChessMove(myPosition, diagonal1, PieceType.KNIGHT);
                 moves.add(newMove4);
             }
-            if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor)) {
+            validMove = isPositionValid(board, diagonal2);
+            if(validMove && ((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor))) {
                 var newMove1 = new ChessMove(myPosition, diagonal2, PieceType.BISHOP);
                 moves.add(newMove1);
                 var newMove2 = new ChessMove(myPosition, diagonal2, PieceType.ROOK);
@@ -380,7 +382,7 @@ public class ChessPiece {
         if(currRow + direction == 8 || currRow + direction == 1){
             validMove = false;
         }
-        if((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor) && validMove) {
+        if(validMove && ((board.getPiece(diagonal2) != null) && (board.getPiece(diagonal2).getTeamColor() != pieceColor))) {
             var diagonalMove = new ChessMove(myPosition, diagonal2, null);
             moves.add(diagonalMove);
         }
