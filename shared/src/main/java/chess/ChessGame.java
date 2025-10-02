@@ -78,8 +78,9 @@ public class ChessGame {
         TeamColor currentColor = piece.getTeamColor();
         var initialMoves = piece.pieceMoves(board, startPosition);
         var finalValidMoves = new HashSet<ChessMove>();
+        var kingPosition = getKingPosition(currentColor);
         for(ChessMove move: initialMoves) {
-            if(makeGhostMove(move, currentColor)) {
+            if(makeGhostMove(move, currentColor, kingPosition)) {
                 finalValidMoves.add(move);
             }
         }
@@ -139,14 +140,9 @@ public class ChessGame {
     /*Makes a hypothetical move on the chess board and returns true if that move can be made without putting
     * the king in check*/
     /*RETURNS FALSE IF MAKING THE MOVE PUTS THE KING IN CHECK*/
-    public boolean makeGhostMove(ChessMove move, TeamColor teamColor) {
+    public boolean makeGhostMove(ChessMove move, TeamColor teamColor, ChessPosition kingPosition) {
         /*Makes a ghost board identical to the current board*/
         var ghostBoard = new ChessBoard();
-        ChessPosition kingPosition;
-        if(teamColor == TeamColor.WHITE) {
-            kingPosition = whiteKingPosition;
-        }
-        else{kingPosition = blackKingPosition;}
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 var currentPosition = new ChessPosition(i+1, j+1);
@@ -155,9 +151,6 @@ public class ChessGame {
                     var newPieceColor = board.getPiece(currentPosition).getTeamColor();
                     var piece = new ChessPiece(newPieceColor, newPieceType);
                     ghostBoard.addPiece(currentPosition, piece);
-                    if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                        kingPosition = currentPosition;
-                    }
                 }
             }
         }
@@ -166,6 +159,9 @@ public class ChessGame {
         ghostBoard.removePiece(move.getStartPosition());
         ghostBoard.removePiece(move.getEndPosition());
         ghostBoard.addPiece(move.getEndPosition(), ghostPiece);
+        if(ghostPiece.getPieceType() == ChessPiece.PieceType.KING) {
+            kingPosition = move.getEndPosition();
+        }
         /*Checks to see if making that ghost move puts the king in check*/
         var movesSet = CheckTeamPieces(teamColor, ghostBoard, kingPosition);
         return movesSet.isEmpty();
@@ -178,14 +174,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition;
         findKing(board);
-        if(teamColor == TeamColor.WHITE) {
-            kingPosition = whiteKingPosition;
-        }
-        else{
-            kingPosition = blackKingPosition;
-        }
+        ChessPosition kingPosition = getKingPosition(teamColor);
         var movesSet = CheckTeamPieces(teamColor, board, kingPosition);
         return !movesSet.isEmpty();
     }
@@ -279,6 +269,8 @@ public class ChessGame {
     * currently in check or not.*/
     public Collection<ChessMove> FindValidMoves(TeamColor teamColor) {
         var newValidMoves = new HashSet<ChessMove>();
+        findKing(board);
+        var kingPosition = getKingPosition(teamColor);
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 var currentPosition = new ChessPosition(i+1, j+1);
@@ -286,9 +278,8 @@ public class ChessGame {
                 if(piece != null && piece.getTeamColor() == teamColor) {
                     var pieceMoves = piece.pieceMoves(board, currentPosition);
                     for(ChessMove move : pieceMoves) {
-                        var ghostMove = makeGhostMove(move, teamColor);
-                        var inCheck = isInCheck(teamColor);
-                        if(ghostMove && !inCheck) {
+                        var ghostMove = makeGhostMove(move, teamColor, kingPosition);
+                        if(ghostMove) {
                             newValidMoves.add(move);
                         }
                     }
@@ -321,9 +312,11 @@ public class ChessGame {
             kingMoves = board.getPiece(blackKingPosition).pieceMoves(board, blackKingPosition);
         }
         for(ChessMove move : kingMoves) {
-            var movesSet = CheckTeamPieces(teamColor, board, move.getEndPosition());
-            var ghostMove = makeGhostMove(move, teamColor);
-            if(movesSet.isEmpty() && ghostMove) {
+            var movesSet = CheckTeamPieces(teamColor, board, move.getStartPosition());
+            var ghostMove = makeGhostMove(move, teamColor, move.getStartPosition());
+            var movesSet1 = CheckTeamPieces(teamColor, board, move.getEndPosition());
+            var ghostMove1 = makeGhostMove(move, teamColor, move.getEndPosition());
+            if(movesSet.isEmpty() && ghostMove && movesSet1.isEmpty() && ghostMove1) {
                 safeKingMoves.add(move);
             }
         }
