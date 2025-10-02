@@ -213,12 +213,28 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if(!FindValidMoves(teamColor).isEmpty()) {
-            return false;
+        var board1 = new ChessBoard();
+        board1.resetBoard();
+        if(isInCheck(teamColor)) {return false;}
+        else if (board.equals(board1)) {return false;}
+        else{
+            var safeKingMoves = new HashSet<ChessMove>();
+            Collection<ChessMove> kingMoves;
+            if(teamColor == TeamColor.WHITE) {
+                kingMoves = board.getPiece(whiteKingPosition).pieceMoves(board, whiteKingPosition);
+            }
+            else{
+                kingMoves = board.getPiece(blackKingPosition).pieceMoves(board, blackKingPosition);
+            }
+            for(ChessMove move : kingMoves) {
+                var movesSet = CheckTeamPieces(teamColor, board, move.getEndPosition());
+                if(movesSet.isEmpty()) {
+                    safeKingMoves.add(move);
+                }
+            }
+            return safeKingMoves.isEmpty();
         }
-        else {
-            return !isInCheck(teamColor);
-        }
+
     }
 
     /**
@@ -254,6 +270,15 @@ public class ChessGame {
                     if(pieceMoves.contains(testMove)) {
                         moves.add(startPosition);
                     }
+                    if(piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                        var queenMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.QUEEN);
+                        var rookMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.ROOK);
+                        var knightMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.KNIGHT);
+                        var bishopMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.BISHOP);
+                        if(pieceMoves.contains(queenMove) || pieceMoves.contains(rookMove) || pieceMoves.contains(knightMove) || pieceMoves.contains(bishopMove)) {
+                            moves.add(startPosition);
+                        }
+                    }
                 }
             }
         }
@@ -272,7 +297,9 @@ public class ChessGame {
                 if(piece != null && piece.getTeamColor() == teamColor) {
                     var pieceMoves = piece.pieceMoves(board, currentPosition);
                     for(ChessMove move : pieceMoves) {
-                        if(makeGhostMove(move, teamColor) && !isInCheck(teamColor)) {
+                        var ghostMove = makeGhostMove(move, teamColor);
+                        var inCheck = isInCheck(teamColor);
+                        if(ghostMove && !inCheck) {
                             newValidMoves.add(move);
                         }
                     }
@@ -295,4 +322,19 @@ public class ChessGame {
             }
         }
     }
+    /*returns true if there is a piece that can kill the piece that puts the king in checkmate*/
+    public boolean defensePiece(TeamColor teamColor, ChessBoard theBoard, ChessPosition kingPosition) {
+        var dangerousPieces = CheckTeamPieces(teamColor, theBoard, kingPosition);
+        TeamColor oppositeTeamColor;
+        boolean kingDefended = false;
+        if(teamColor == TeamColor.WHITE) {oppositeTeamColor = TeamColor.BLACK;}
+        else {oppositeTeamColor = TeamColor.WHITE;}
+        for(ChessPosition piecePosition : dangerousPieces) {
+            /*Use CheckTeamPieces to find pieces from teamColor's team that can take the dangerous piece*/
+            var defensePieces = CheckTeamPieces(oppositeTeamColor, theBoard, piecePosition);
+
+        }
+        return kingDefended;
+    }
+
 }
