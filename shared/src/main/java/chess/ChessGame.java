@@ -3,6 +3,7 @@ package chess;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -17,9 +18,24 @@ public class ChessGame {
     private ChessPosition whiteKingPosition;
     private ChessPosition blackKingPosition;
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board) && Objects.equals(whiteKingPosition, chessGame.whiteKingPosition) && Objects.equals(blackKingPosition, chessGame.blackKingPosition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTeam, board, whiteKingPosition, blackKingPosition);
+    }
+
     public ChessGame() {
         currentTeam = TeamColor.WHITE;
         board = new ChessBoard();
+
     }
 
     /**
@@ -54,6 +70,9 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        if(board.getPiece(startPosition) == null) {
+            return null;
+        }
         findKing(board);
         ChessPiece piece = board.getPiece(startPosition);
         TeamColor currentColor = piece.getTeamColor();
@@ -65,10 +84,14 @@ public class ChessGame {
             }
         }
         if(piece.getPieceType() == ChessPiece.PieceType.KING) {
+            var removeSet = new HashSet<ChessMove>();
             for(ChessMove move: finalValidMoves) {
-                if(!makeGhostMove(move, currentColor)) {
-                    finalValidMoves.remove(move);
+                if(!CheckTeamPieces(currentColor, board, move.getEndPosition()).isEmpty()) {
+                    removeSet.add(move);
                 }
+            }
+            for(ChessMove move: removeSet) {
+                finalValidMoves.remove(move);
             }
         }
         return finalValidMoves;
@@ -83,17 +106,33 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         var validMoves = validMoves(move.getStartPosition());
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if(validMoves.contains(move)) {
-            board.removePiece(move.getStartPosition());
-            board.removePiece(move.getEndPosition());
-            board.addPiece(move.getEndPosition(), piece);
-            if(piece.getPieceType() == ChessPiece.PieceType.KING) {
-                findKing(board);
+
+        if(validMoves != null) {
+            if(validMoves.contains(move) && board.getPiece(move.getStartPosition()).getTeamColor() == currentTeam) {
+                board.removePiece(move.getStartPosition());
+                board.removePiece(move.getEndPosition());
+                board.addPiece(move.getEndPosition(), piece);
+                if(piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    findKing(board);
+                }
+                if(piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null) {
+                    var newPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+                    board.removePiece(move.getEndPosition());
+                    board.addPiece(move.getEndPosition(), newPiece);
+                }
+                if(currentTeam == TeamColor.WHITE) {
+                    currentTeam = TeamColor.BLACK;
+                }
+                else{currentTeam = TeamColor.WHITE;}
+            }
+            else {
+                throw new InvalidMoveException("move is not in the list of valid moves");
             }
         }
-        else {
-            throw new InvalidMoveException("move is not in the list of valid moves");
+        else if(piece == null) {
+            throw new InvalidMoveException("starting position does not have a piece");
         }
+
     }
 
     /*Makes a hypothetical move on the chess board and returns true if that move can be made without putting
