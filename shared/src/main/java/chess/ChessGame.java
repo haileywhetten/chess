@@ -35,7 +35,7 @@ public class ChessGame {
     public ChessGame() {
         currentTeam = TeamColor.WHITE;
         board = new ChessBoard();
-
+        board.resetBoard();
     }
 
     /**
@@ -120,6 +120,7 @@ public class ChessGame {
                     board.removePiece(move.getEndPosition());
                     board.addPiece(move.getEndPosition(), newPiece);
                 }
+
                 if(currentTeam == TeamColor.WHITE) {
                     currentTeam = TeamColor.BLACK;
                 }
@@ -178,6 +179,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition;
+        findKing(board);
         if(teamColor == TeamColor.WHITE) {
             kingPosition = whiteKingPosition;
         }
@@ -215,7 +217,7 @@ public class ChessGame {
             return false;
         }
         else {
-            return isInCheck(teamColor);
+            return !isInCheck(teamColor);
         }
     }
 
@@ -270,7 +272,7 @@ public class ChessGame {
                 if(piece != null && piece.getTeamColor() == teamColor) {
                     var pieceMoves = piece.pieceMoves(board, currentPosition);
                     for(ChessMove move : pieceMoves) {
-                        if(makeGhostMove(move, teamColor)) {
+                        if(makeGhostMove(move, teamColor) && !isInCheck(teamColor)) {
                             newValidMoves.add(move);
                         }
                     }
