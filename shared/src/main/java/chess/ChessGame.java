@@ -201,7 +201,9 @@ public class ChessGame {
             return false;
         }
         else {
-            return FindValidMoves(teamColor).isEmpty();
+            boolean existNoValidMoves = FindValidMoves(teamColor).isEmpty();
+            boolean existNoValidKingMoves = FindValidKingMoves(teamColor).isEmpty();
+            return existNoValidKingMoves && existNoValidMoves;
         }
     }
 
@@ -218,20 +220,7 @@ public class ChessGame {
         if(isInCheck(teamColor)) {return false;}
         else if (board.equals(board1)) {return false;}
         else{
-            var safeKingMoves = new HashSet<ChessMove>();
-            Collection<ChessMove> kingMoves;
-            if(teamColor == TeamColor.WHITE) {
-                kingMoves = board.getPiece(whiteKingPosition).pieceMoves(board, whiteKingPosition);
-            }
-            else{
-                kingMoves = board.getPiece(blackKingPosition).pieceMoves(board, blackKingPosition);
-            }
-            for(ChessMove move : kingMoves) {
-                var movesSet = CheckTeamPieces(teamColor, board, move.getEndPosition());
-                if(movesSet.isEmpty()) {
-                    safeKingMoves.add(move);
-                }
-            }
+            var safeKingMoves = FindValidKingMoves(teamColor);
             return safeKingMoves.isEmpty();
         }
 
@@ -322,19 +311,30 @@ public class ChessGame {
             }
         }
     }
-    /*returns true if there is a piece that can kill the piece that puts the king in checkmate*/
-    public boolean defensePiece(TeamColor teamColor, ChessBoard theBoard, ChessPosition kingPosition) {
-        var dangerousPieces = CheckTeamPieces(teamColor, theBoard, kingPosition);
-        TeamColor oppositeTeamColor;
-        boolean kingDefended = false;
-        if(teamColor == TeamColor.WHITE) {oppositeTeamColor = TeamColor.BLACK;}
-        else {oppositeTeamColor = TeamColor.WHITE;}
-        for(ChessPosition piecePosition : dangerousPieces) {
-            /*Use CheckTeamPieces to find pieces from teamColor's team that can take the dangerous piece*/
-            var defensePieces = CheckTeamPieces(oppositeTeamColor, theBoard, piecePosition);
-
+    public Collection<ChessMove> FindValidKingMoves(TeamColor teamColor) {
+        var safeKingMoves = new HashSet<ChessMove>();
+        Collection<ChessMove> kingMoves;
+        if(teamColor == TeamColor.WHITE) {
+            kingMoves = board.getPiece(whiteKingPosition).pieceMoves(board, whiteKingPosition);
         }
-        return kingDefended;
+        else{
+            kingMoves = board.getPiece(blackKingPosition).pieceMoves(board, blackKingPosition);
+        }
+        for(ChessMove move : kingMoves) {
+            var movesSet = CheckTeamPieces(teamColor, board, move.getEndPosition());
+            var ghostMove = makeGhostMove(move, teamColor);
+            if(movesSet.isEmpty() && ghostMove) {
+                safeKingMoves.add(move);
+            }
+        }
+        return safeKingMoves;
+    }
+
+    public ChessPosition getKingPosition(TeamColor teamColor) {
+        if(teamColor == TeamColor.WHITE) {
+            return whiteKingPosition;
+        }
+        else{return blackKingPosition;}
     }
 
 }
