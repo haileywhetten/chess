@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.Context;
+import java.util.UUID;
 
 import java.util.Map;
 
@@ -16,8 +17,12 @@ public class Server {
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> ctx.result("{}"));
         server.post("user", ctx -> register(ctx));
+        server.post("session", ctx -> login(ctx));
 
 
+    }
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
     }
 
     private void register(Context ctx) {
@@ -27,8 +32,12 @@ public class Server {
 
         //call to service and register
 
-        var res = Map.of("username", req.get("username"), "authToken", "yzx");
+        var res = Map.of("username", req.get("username"), "authToken", generateToken());
         ctx.result(serializer.toJson(res));
+
+    }
+
+    private void login(Context ctx) {
 
     }
 
