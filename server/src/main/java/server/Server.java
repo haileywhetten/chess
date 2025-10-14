@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.MemoryDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
@@ -16,8 +17,9 @@ public class Server {
     private final UserService userService;
 
     public Server() {
+        var dataAccess = new MemoryDataAccess();
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        userService = new UserService();
+        userService = new UserService(dataAccess);
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> ctx.result("{}"));
         server.post("user", this::register);
@@ -32,14 +34,20 @@ public class Server {
 
     //These are the handlers
     private void register(Context ctx) {
-        var serializer = new Gson();
-        String requestJson = ctx.body();
-        var user = serializer.fromJson(requestJson, UserData.class);
+        try {
+            var serializer = new Gson();
+            String requestJson = ctx.body();
+            var user = serializer.fromJson(requestJson, UserData.class);
 
-        //call to service and register
-        AuthData authData = userService.register(user);
+            //call to service and register
+            AuthData authData = userService.register(user);
 
-        ctx.result(serializer.toJson(authData));
+            ctx.result(serializer.toJson(authData));
+        } catch (Exception ex) {
+            //This may need to be changed because it may be hard coded
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(403).result(message);
+        }
 
     }
 
