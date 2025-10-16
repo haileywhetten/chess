@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +49,8 @@ class UserServiceTest {
         var user = new UserData("joe", "bruh", "j@j.com");
         var userService = new UserService(db);
         userService.register(user);
-        assertNotNull(userService.login(user));
+        AuthData authData = userService.login(user);
+        assertEquals(user.username(), authData.username());
     }
 
     @Test
@@ -60,6 +61,32 @@ class UserServiceTest {
         assertThrows(Exception.class, () -> userService.login(user));
         userService.register(user);
         var userWrongPassword = new UserData("joe", "bruhh", "j@j.com");
+        var userNoPassword = new UserData("joe", null, "j@j.com");
         assertThrows(Exception.class, () -> userService.login(userWrongPassword));
+        assertThrows(Exception.class, () -> userService.login(userNoPassword));
+    }
+
+    @Test
+    void logout() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        userService.register(user);
+        AuthData authData = userService.login(user);
+        userService.logout(authData.authToken());
+        assertNull(db.getAuth(authData.authToken()));
+    }
+
+    @Test
+    void logoutNotLoggedIn() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        AuthData authData = userService.register(user);
+        assertThrows(Exception.class, () -> userService.logout("you are such a capper"));
+        userService.logout(authData.authToken());
+        assertThrows(Exception.class, () -> userService.logout(authData.authToken()));
+
+
     }
 }

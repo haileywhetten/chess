@@ -25,7 +25,11 @@ public class UserService {
             throw new Exception("already taken");
         }
         dataAccess.createUser(user);
-        return new AuthData(user.username(), generateToken());
+        AuthData authData = new AuthData(user.username(), generateToken());
+        dataAccess.createUser(user);
+        dataAccess.createAuth(authData);
+        //return new AuthData(user.username(), generateToken());
+        return authData;
     }
 
     public AuthData login(UserData user) throws Exception {
@@ -39,6 +43,14 @@ public class UserService {
         var authData = new AuthData(user.username(), generateToken());
         dataAccess.createAuth(authData);
         return authData;
+    }
+
+    public void logout(String authToken) throws Exception {
+        AuthData authData = dataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new Exception("unauthorized");
+        }
+        dataAccess.deleteAuth(authData);
     }
 
 

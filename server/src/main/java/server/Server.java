@@ -24,6 +24,7 @@ public class Server {
         server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
+        server.delete("session", this::logout);
 
 
     }
@@ -80,6 +81,24 @@ public class Server {
                 ctx.status(400).result(message);
             }
             else if(ex.getMessage().equals("unauthorized")) {
+                ctx.status(401).result(message);
+            }
+            else {
+                ctx.status(500).result(message);
+            }
+        }
+    }
+
+    private void logout(Context ctx) {
+        try{
+            var serializer = new Gson();
+            String requestJson = ctx.header("authorization");
+            var authToken = serializer.fromJson(requestJson, String.class);
+            userService.logout(authToken);
+            ctx.result("{}");
+        } catch (Exception ex){
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            if(ex.getMessage().equals("unauthorized")) {
                 ctx.status(401).result(message);
             }
             else {
