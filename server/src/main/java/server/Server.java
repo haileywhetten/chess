@@ -21,15 +21,24 @@ public class Server {
         server = Javalin.create(config -> config.staticFiles.add("web"));
         userService = new UserService(dataAccess);
         // Register your endpoints and exception handlers here.
-        server.delete("db", ctx -> ctx.result("{}"));
-        //Do need to add a method to the service to clear. 
+        server.delete("db", this::clear);
         server.post("user", this::register);
-        //server.post("session", this::login);
+        server.post("session", this::login);
 
 
     }
 
     //These are the handlers
+    private void clear(Context ctx) {
+        try {
+            var serializer = new Gson();
+            userService.clear();
+            ctx.result("{}");
+        } catch (Exception ex) {
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(message);
+        }
+    }
     private void register(Context ctx) {
         try {
             var serializer = new Gson();
@@ -58,7 +67,25 @@ public class Server {
     }
 
     private void login(Context ctx) {
+        try{
+            var serializer = new Gson();
+            String requestJson = ctx.body();
+            var user = serializer.fromJson(requestJson, UserData.class);
+            AuthData authData = userService.login(user);
+            ctx.result(serializer.toJson(authData));
 
+        } catch(Exception ex){
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            if(ex.getMessage().equals("bad request")) {
+                ctx.status(400).result(message);
+            }
+            else if(ex.getMessage().equals("unauthorized")) {
+                ctx.status(401).result(message);
+            }
+            else {
+                ctx.status(500).result(message);
+            }
+        }
     }
 
     public int run(int desiredPort) {

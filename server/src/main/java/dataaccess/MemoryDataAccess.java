@@ -1,14 +1,19 @@
 package dataaccess;
 
-import model.UserData;
+import model.*;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class MemoryDataAccess implements DataAccess{
     private final HashMap<String, UserData> users = new HashMap<>();
+    private final HashMap<String, GameData> games = new HashMap<>();
+    private final HashMap<String, AuthData> auths = new HashMap<>();
     @Override
     public void clear() {
         users.clear();
+        games.clear();
+        auths.clear();
     }
 
     @Override
@@ -21,4 +26,16 @@ public class MemoryDataAccess implements DataAccess{
     public UserData getUser(String username) {
         return users.get(username);
     }
+
+    @Override
+    public void createAuth(AuthData authData) {
+        auths.put(authData.authToken(), authData);
+    }
+
+    @Override
+    public AuthData getAuth(String authToken) {
+        return auths.get(authToken);
+    }
+
 }
+

@@ -28,6 +28,20 @@ public class UserService {
         return new AuthData(user.username(), generateToken());
     }
 
+    public AuthData login(UserData user) throws Exception {
+        if(user.username() == null || user.password() == null) {
+            throw new Exception("bad request");
+        }
+        if(dataAccess.getUser(user.username()) == null || !dataAccess.getUser(user.username()).password().equals(user.password())) {
+            throw new Exception("unauthorized");
+        }
+
+        var authData = new AuthData(user.username(), generateToken());
+        dataAccess.createAuth(authData);
+        return authData;
+    }
+
+
     private String generateToken() {
         return UUID.randomUUID().toString();
     }

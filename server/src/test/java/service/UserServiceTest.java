@@ -33,7 +33,33 @@ class UserServiceTest {
     }
 
     @Test
-    void clear() {
+    void clear() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        userService.register(user);
+        assertNotNull(db.getUser(user.username()));
+        userService.clear();
+        assertNull(db.getUser(user.username()));
+    }
 
+    @Test
+    void login() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        userService.register(user);
+        assertNotNull(userService.login(user));
+    }
+
+    @Test
+    void badLogin() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        assertThrows(Exception.class, () -> userService.login(user));
+        userService.register(user);
+        var userWrongPassword = new UserData("joe", "bruhh", "j@j.com");
+        assertThrows(Exception.class, () -> userService.login(userWrongPassword));
     }
 }
