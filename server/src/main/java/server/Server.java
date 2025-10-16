@@ -22,14 +22,11 @@ public class Server {
         userService = new UserService(dataAccess);
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> ctx.result("{}"));
+        //Do need to add a method to the service to clear. 
         server.post("user", this::register);
         //server.post("session", this::login);
 
 
-    }
-    //TODO: This function is duplicated in UserService, probably other places too
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
     }
 
     //These are the handlers
