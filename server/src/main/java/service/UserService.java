@@ -13,13 +13,19 @@ public class UserService {
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
+    public void clear() {
+        dataAccess.clear();
+    }
+
     public AuthData register(UserData user) throws Exception {
+        if(user.password() == null || user.username() == null || user.email() == null) {
+            throw new Exception("bad request");
+        }
         if(dataAccess.getUser(user.username()) != null){
-            throw new Exception("already exists");
+            throw new Exception("already taken");
         }
         dataAccess.createUser(user);
-        var authData =  new AuthData(user.username(), generateToken());
-        return authData;
+        return new AuthData(user.username(), generateToken());
     }
 
     private String generateToken() {

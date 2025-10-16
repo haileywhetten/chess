@@ -43,7 +43,16 @@ public class Server {
         } catch (Exception ex) {
             //This may need to be changed because it may be hard coded
             var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            ctx.status(403).result(message);
+            if(ex.getMessage().equals("already taken")) {
+                ctx.status(403).result(message);
+            }
+            else if(ex.getMessage().equals("bad request")) {
+                ctx.status(400).result(message);
+            }
+            else {
+                ctx.status(500).result(message);
+            }
+
         }
 
     }
