@@ -89,4 +89,29 @@ class UserServiceTest {
 
 
     }
+
+    @Test
+    void createGame() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        String gameName = "game1";
+        AuthData authData = userService.register(user);
+        var game = userService.createGame(authData.authToken(), gameName);
+        int gameId = game.gameId();
+        assertEquals(db.getGame(game.gameId()).gameId(), gameId);
+    }
+
+    @Test
+    void createGameFail() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        String gameName = "game1";
+        AuthData authData = userService.register(user);
+        userService.logout(authData.authToken());
+        assertThrows(Exception.class, () -> userService.createGame(authData.authToken(), gameName));
+        userService.login(user);
+        assertThrows(Exception.class, () -> userService.createGame(authData.authToken(), null));
+    }
 }

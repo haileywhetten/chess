@@ -1,9 +1,12 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
+import java.util.Random;
 import java.util.UUID;
 //TODO: Delete other UserData from the datamodel package because I duplicated that
 
@@ -51,6 +54,23 @@ public class UserService {
             throw new Exception("unauthorized");
         }
         dataAccess.deleteAuth(authData);
+    }
+
+    public GameData createGame(String authToken, String gameName) throws Exception {
+        var authData = dataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new Exception("unauthorized");
+        }
+        if(gameName == null) {
+            throw new Exception("bad request");
+        }
+        var game = new ChessGame();
+        Random rand = new Random();
+        int gameId = rand.nextInt(10000);
+        var gameData = new GameData(gameId, null, null, gameName, game);
+        dataAccess.createGame(gameData);
+
+        return gameData;
     }
 
 

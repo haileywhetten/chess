@@ -7,9 +7,9 @@ import io.javalin.http.Context;
 import model.*;
 import service.UserService;
 
-import java.util.UUID;
-
+import java.util.HashMap;
 import java.util.Map;
+
 
 public class Server {
 
@@ -25,6 +25,7 @@ public class Server {
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
+        server.post("game", this::createGame);
 
 
     }
@@ -99,6 +100,32 @@ public class Server {
         } catch (Exception ex){
             var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             if(ex.getMessage().equals("unauthorized")) {
+                ctx.status(401).result(message);
+            }
+            else {
+                ctx.status(500).result(message);
+            }
+        }
+    }
+    private void createGame(Context ctx) {
+        try{
+            var serializer = new Gson();
+            String authTokenJson = ctx.header("authorization");
+            String gameNameJson = ctx.body();
+            var authToken = serializer.fromJson(authTokenJson, String.class);
+            var gameData = serializer.fromJson(gameNameJson, GameData.class);
+            String gameName = gameData.gameName();
+            GameData game = userService.createGame(authToken, gameName);
+            String json = serializer.toJson(Map.of("gameID", game.gameId()));
+
+            ctx.result(json);
+
+        } catch (Exception ex){
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            if(ex.getMessage().equals("bad request")) {
+                ctx.status(400).result(message);
+            }
+            else if(ex.getMessage().equals("unauthorized")) {
                 ctx.status(401).result(message);
             }
             else {
