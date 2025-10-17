@@ -2,9 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccess;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
 import java.util.List;
 import java.util.Random;
@@ -13,6 +11,7 @@ import java.util.UUID;
 
 public class UserService {
     private final DataAccess dataAccess;
+    private int numberOfGames = 0;
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -66,20 +65,65 @@ public class UserService {
             throw new Exception("bad request");
         }
         var game = new ChessGame();
-        Random rand = new Random();
-        int gameId = rand.nextInt(10000);
+        //Random rand = new Random();
+        //int gameId = rand.nextInt(10000);
+        int gameId = numberOfGames;
+        numberOfGames++;
         var gameData = new GameData(gameId, null, null, gameName, game);
-        dataAccess.createGame(gameData);
+        var gameInfo = new GameInfo(gameId, null, null, gameName);
+        dataAccess.createGame(gameData, gameInfo);
 
         return gameData;
     }
 
-    public List<GameData> listGames(String authToken) throws Exception {
+    public List<GameInfo> listGames(String authToken) throws Exception {
         var authData = dataAccess.getAuth(authToken);
         if(authData == null) {
             throw new Exception("unauthorized");
         }
         return dataAccess.listGames();
+    }
+
+    public void joinGame(String authToken, int gameId, ChessGame.TeamColor teamColor) throws Exception {
+        var authData = dataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new Exception("unauthorized");
+        }
+        String username = authData.username();
+        var gameData = dataAccess.getGame(gameId);
+        if(gameData == null || teamColor == null || gameId > 9999) {
+            throw new Exception("bad request");
+        }
+        String whiteUsername;
+        String blackUsername;
+        //String colorUpper;
+        /*if(teamColor!= null) {
+            colorUpper = teamColor.toUpperCase();
+        }
+        else{
+            colorUpper = null;
+        }*/
+        //if(colorUpper != null && colorUpper.equals("WHITE")) {
+        if(teamColor == ChessGame.TeamColor.WHITE) {
+            if(gameData.whiteUsername() != null) {
+                throw new Exception("already taken");
+            }
+            whiteUsername = username;
+            blackUsername = gameData.blackUsername();
+        }
+        //else if (colorUpper != null && colorUpper.equals("BLACK")){
+        else {
+            if(gameData.blackUsername() != null) {
+                throw new Exception("already taken");
+            }
+            whiteUsername = gameData.whiteUsername();
+            blackUsername = username;
+        }
+        //else {whiteUsername = gameData.whiteUsername(); blackUsername = gameData.blackUsername();}
+        var updatedGame = new GameData(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName(), gameData.game());
+        var updatedGameInfo = new GameInfo(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName());
+        dataAccess.updateGame(updatedGame, updatedGameInfo);
+
     }
 
 

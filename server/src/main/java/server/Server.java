@@ -26,6 +26,7 @@ public class Server {
         server.post("session", this::login);
         server.delete("session", this::logout);
         server.post("game", this::createGame);
+        server.put("game", this::joinGame);
         server.get("game", this::listGames);
 
 
@@ -148,6 +149,33 @@ public class Server {
             }
             else {
                 ctx.status(500).result(message);
+            }
+        }
+    }
+    private void joinGame(Context ctx) {
+        try{
+            var serializer = new Gson();
+            String authToken = ctx.header("authorization");
+            String requestJson = ctx.body();
+            //var authToken = serializer.fromJson(authTokenJson, String.class);
+            var colorAndId = serializer.fromJson(requestJson, ColorIdPair.class);
+            int gameId;
+            if (colorAndId.getId() == null) {
+                gameId = 10000;
+            }
+            else {
+                gameId = Integer.parseInt(colorAndId.getId());
+            }
+            userService.joinGame(authToken, gameId, colorAndId.getColor());
+            ctx.result("{}");
+
+        } catch(Exception ex) {
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            switch (ex.getMessage()) {
+                case "already taken" -> ctx.status(403).result(message);
+                case "bad request" -> ctx.status(400).result(message);
+                case "unauthorized" -> ctx.status(401).result(message);
+                default -> ctx.status(500).result(message);
             }
         }
     }

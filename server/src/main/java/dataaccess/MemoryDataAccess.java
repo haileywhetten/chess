@@ -12,10 +12,12 @@ public class MemoryDataAccess implements DataAccess{
     private final HashMap<String, UserData> users = new HashMap<>();
     private final HashMap<Integer, GameData> games = new HashMap<>();
     private final HashMap<String, AuthData> auths = new HashMap<>();
+    private final HashMap<Integer, GameInfo> gameInfos = new HashMap<>();
     @Override
     public void clear() {
         users.clear();
         games.clear();
+        gameInfos.clear();
         auths.clear();
     }
 
@@ -46,8 +48,9 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public void createGame(GameData gameData) {
+    public void createGame(GameData gameData, GameInfo gameInfo) {
         games.put(gameData.gameId(), gameData);
+        gameInfos.put(gameInfo.gameId(), gameInfo);
     }
 
     @Override
@@ -56,8 +59,15 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public List<GameData> listGames() {
-        return new ArrayList<>(games.values());
+    public List<GameInfo> listGames() {
+        var list = new ArrayList<>(gameInfos.values());
+        return list;
+    }
+
+    @Override
+    public void updateGame(GameData game, GameInfo gameInfo) {
+        games.put(game.gameId(), game);
+        gameInfos.put(gameInfo.gameId(), gameInfo);
     }
 }
 
