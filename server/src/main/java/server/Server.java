@@ -26,6 +26,7 @@ public class Server {
         server.post("session", this::login);
         server.delete("session", this::logout);
         server.post("game", this::createGame);
+        server.get("game", this::listGames);
 
 
     }
@@ -33,7 +34,6 @@ public class Server {
     //These are the handlers
     private void clear(Context ctx) {
         try {
-            var serializer = new Gson();
             userService.clear();
             ctx.result("{}");
         } catch (Exception ex) {
@@ -52,7 +52,6 @@ public class Server {
 
             ctx.result(serializer.toJson(authData));
         } catch (Exception ex) {
-            //This may need to be changed because it may be hard coded
             var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             if(ex.getMessage().equals("already taken")) {
                 ctx.status(403).result(message);
@@ -126,6 +125,25 @@ public class Server {
                 ctx.status(400).result(message);
             }
             else if(ex.getMessage().equals("unauthorized")) {
+                ctx.status(401).result(message);
+            }
+            else {
+                ctx.status(500).result(message);
+            }
+        }
+    }
+    private void listGames(Context ctx) {
+        try{
+        var serializer = new Gson();
+        String authTokenJson = ctx.header("authorization");
+        var authToken = serializer.fromJson(authTokenJson, String.class);
+        var games = userService.listGames(authToken);
+        String json = serializer.toJson(Map.of("games", games));
+        ctx.result(json);
+
+        } catch (Exception ex) {
+            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            if(ex.getMessage().equals("unauthorized")) {
                 ctx.status(401).result(message);
             }
             else {

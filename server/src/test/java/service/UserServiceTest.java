@@ -114,4 +114,24 @@ class UserServiceTest {
         userService.login(user);
         assertThrows(Exception.class, () -> userService.createGame(authData.authToken(), null));
     }
+
+    @Test
+    void listGames() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var user = new UserData("joe", "bruh", "j@j.com");
+        var userService = new UserService(db);
+        AuthData authData = userService.register(user);
+        String gameName1 = "game1";
+        String gameName2 = "hailey's game";
+        userService.createGame(authData.authToken(), gameName1);
+        userService.createGame(authData.authToken(), gameName2);
+        assertNotNull(userService.listGames(authData.authToken()));
+    }
+
+    @Test
+    void listGamesFail() throws Exception {
+        DataAccess db = new MemoryDataAccess();
+        var userService = new UserService(db);
+        assertThrows(Exception.class, () -> userService.listGames("random auth token"));
+    }
 }

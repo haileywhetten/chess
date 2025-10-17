@@ -6,6 +6,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 //TODO: Delete other UserData from the datamodel package because I duplicated that
@@ -71,6 +72,14 @@ public class UserService {
         dataAccess.createGame(gameData);
 
         return gameData;
+    }
+
+    public List<GameData> listGames(String authToken) throws Exception {
+        var authData = dataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new Exception("unauthorized");
+        }
+        return dataAccess.listGames();
     }
 
 

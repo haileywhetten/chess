@@ -3,7 +3,9 @@ package dataaccess;
 import chess.ChessGame;
 import model.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class MemoryDataAccess implements DataAccess{
@@ -51,6 +53,11 @@ public class MemoryDataAccess implements DataAccess{
     @Override
     public GameData getGame(int gameId) {
         return games.get(gameId);
+    }
+
+    @Override
+    public List<GameData> listGames() {
+        return new ArrayList<>(games.values());
     }
 }
 

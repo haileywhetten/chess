@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.*;
 
+import java.util.List;
+
 public interface DataAccess {
     void clear();
     void createUser(UserData user);
@@ -11,4 +13,5 @@ public interface DataAccess {
     void deleteAuth(AuthData authData);
     void createGame(GameData gameData);
     GameData getGame(int gameId);
+    List<GameData> listGames();
 }
