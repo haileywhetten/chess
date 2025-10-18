@@ -7,11 +7,9 @@ import model.*;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-//TODO: Delete other UserData from the datamodel package because I duplicated that
 
 public class UserService {
     private final DataAccess dataAccess;
-    private int numberOfGames = 1;
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -31,7 +29,6 @@ public class UserService {
         AuthData authData = new AuthData(user.username(), generateToken());
         dataAccess.createUser(user);
         dataAccess.createAuth(authData);
-        //return new AuthData(user.username(), generateToken());
         return authData;
     }
 
@@ -67,8 +64,6 @@ public class UserService {
         var game = new ChessGame();
         Random rand = new Random();
         int gameID = rand.nextInt(10000);
-        //int gameId = numberOfGames;
-        //numberOfGames++;
         var gameData = new GameData(gameID, null, null, gameName, game);
         var gameInfo = new GameInfo(gameID, null, null, gameName);
         dataAccess.createGame(gameData, gameInfo);

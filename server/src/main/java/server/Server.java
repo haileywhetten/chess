@@ -157,7 +157,6 @@ public class Server {
             var serializer = new Gson();
             String authToken = ctx.header("authorization");
             String requestJson = ctx.body();
-            //var authToken = serializer.fromJson(authTokenJson, String.class);
             var colorAndId = serializer.fromJson(requestJson, ColorIdPair.class);
             int gameId = colorAndId.getId();
             userService.joinGame(authToken, gameId, colorAndId.getColor());
@@ -173,6 +172,16 @@ public class Server {
             }
         }
     }
+
+    /*public void exceptionCatcher(Exception ex, Context ctx) {
+        var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+        switch (ex.getMessage()) {
+            case "already taken" -> ctx.status(403).result(message);
+            case "bad request" -> ctx.status(400).result(message);
+            case "unauthorized" -> ctx.status(401).result(message);
+            default -> ctx.status(500).result(message);
+        }
+    }*/
 
     public int run(int desiredPort) {
         server.start(desiredPort);

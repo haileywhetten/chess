@@ -24,7 +24,9 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board) && Objects.equals(whiteKingPosition, chessGame.whiteKingPosition) && Objects.equals(blackKingPosition, chessGame.blackKingPosition);
+        return currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board) &&
+                Objects.equals(whiteKingPosition, chessGame.whiteKingPosition) &&
+                Objects.equals(blackKingPosition, chessGame.blackKingPosition);
     }
 
     @Override
@@ -87,7 +89,7 @@ public class ChessGame {
         if(piece.getPieceType() == ChessPiece.PieceType.KING) {
             var removeSet = new HashSet<ChessMove>();
             for(ChessMove move: finalValidMoves) {
-                if(!CheckTeamPieces(currentColor, board, move.getEndPosition()).isEmpty()) {
+                if(!checkTeamPieces(currentColor, board, move.getEndPosition()).isEmpty()) {
                     removeSet.add(move);
                 }
             }
@@ -163,7 +165,7 @@ public class ChessGame {
             kingPosition = move.getEndPosition();
         }
         /*Checks to see if making that ghost move puts the king in check*/
-        var movesSet = CheckTeamPieces(teamColor, ghostBoard, kingPosition);
+        var movesSet = checkTeamPieces(teamColor, ghostBoard, kingPosition);
         return movesSet.isEmpty();
     }
 
@@ -176,7 +178,7 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         findKing(board);
         ChessPosition kingPosition = getKingPosition(teamColor);
-        var movesSet = CheckTeamPieces(teamColor, board, kingPosition);
+        var movesSet = checkTeamPieces(teamColor, board, kingPosition);
         return !movesSet.isEmpty();
     }
 
@@ -191,8 +193,8 @@ public class ChessGame {
             return false;
         }
         else {
-            boolean existNoValidMoves = FindValidMoves(teamColor).isEmpty();
-            boolean existNoValidKingMoves = FindValidKingMoves(teamColor).isEmpty();
+            boolean existNoValidMoves = findValidMoves(teamColor).isEmpty();
+            boolean existNoValidKingMoves = findValidKingMoves(teamColor).isEmpty();
             return existNoValidKingMoves && existNoValidMoves;
         }
     }
@@ -210,7 +212,7 @@ public class ChessGame {
         if(isInCheck(teamColor)) {return false;}
         else if (board.equals(board1)) {return false;}
         else{
-            var safeKingMoves = FindValidKingMoves(teamColor);
+            var safeKingMoves = findValidKingMoves(teamColor);
             return safeKingMoves.isEmpty();
         }
 
@@ -235,7 +237,7 @@ public class ChessGame {
     }
 
     /*Returns a hash set of positions where there are pieces that can take teamColor's king*/
-    public Collection<ChessPosition> CheckTeamPieces(TeamColor teamColor, ChessBoard theBoard, ChessPosition kingPosition) {
+    public Collection<ChessPosition> checkTeamPieces(TeamColor teamColor, ChessBoard theBoard, ChessPosition kingPosition) {
         var moves = new HashSet<ChessPosition>();
 
         for(int i = 0; i < 8; i++) {
@@ -244,7 +246,6 @@ public class ChessGame {
                 var piece = theBoard.getPiece(startPosition);
                 if(piece != null && theBoard.getPiece(startPosition).getTeamColor() != teamColor) {
                     var testMove = new ChessMove(startPosition, kingPosition, null);
-                    /*THIS WOULD HAVE TO CHANGE FROM PIECEMOVES TO VALIDMOVES*/
                     var pieceMoves = piece.pieceMoves(theBoard, startPosition);
                     if(pieceMoves.contains(testMove)) {
                         moves.add(startPosition);
@@ -254,8 +255,8 @@ public class ChessGame {
                         var rookMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.ROOK);
                         var knightMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.KNIGHT);
                         var bishopMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.BISHOP);
-                        if(pieceMoves.contains(queenMove) || pieceMoves.contains(rookMove) || pieceMoves.contains(knightMove) || pieceMoves.contains(bishopMove)) {
-                            moves.add(startPosition);
+                        if(pieceMoves.contains(queenMove) || pieceMoves.contains(rookMove) ||
+                                pieceMoves.contains(knightMove) || pieceMoves.contains(bishopMove)) {moves.add(startPosition);
                         }
                     }
                 }
@@ -267,7 +268,7 @@ public class ChessGame {
     /*Returns moves that will not result in teamColor's king being in check*/
     /*If this set it empty, then we are either in Checkmate or Stalemate, depending on if teamColor's king is
     * currently in check or not.*/
-    public Collection<ChessMove> FindValidMoves(TeamColor teamColor) {
+    public Collection<ChessMove> findValidMoves(TeamColor teamColor) {
         var newValidMoves = new HashSet<ChessMove>();
         findKing(board);
         var kingPosition = getKingPosition(teamColor);
@@ -279,8 +280,7 @@ public class ChessGame {
                     var pieceMoves = piece.pieceMoves(board, currentPosition);
                     for(ChessMove move : pieceMoves) {
                         var ghostMove = makeGhostMove(move, teamColor, kingPosition);
-                        if(ghostMove) {
-                            newValidMoves.add(move);
+                        if(ghostMove) {newValidMoves.add(move);
                         }
                     }
                 }
@@ -302,7 +302,7 @@ public class ChessGame {
             }
         }
     }
-    public Collection<ChessMove> FindValidKingMoves(TeamColor teamColor) {
+    public Collection<ChessMove> findValidKingMoves(TeamColor teamColor) {
         var safeKingMoves = new HashSet<ChessMove>();
         Collection<ChessMove> kingMoves;
         if(teamColor == TeamColor.WHITE) {
@@ -312,9 +312,9 @@ public class ChessGame {
             kingMoves = board.getPiece(blackKingPosition).pieceMoves(board, blackKingPosition);
         }
         for(ChessMove move : kingMoves) {
-            var movesSet = CheckTeamPieces(teamColor, board, move.getStartPosition());
+            var movesSet = checkTeamPieces(teamColor, board, move.getStartPosition());
             var ghostMove = makeGhostMove(move, teamColor, move.getStartPosition());
-            var movesSet1 = CheckTeamPieces(teamColor, board, move.getEndPosition());
+            var movesSet1 = checkTeamPieces(teamColor, board, move.getEndPosition());
             var ghostMove1 = makeGhostMove(move, teamColor, move.getEndPosition());
             if(movesSet.isEmpty() && ghostMove && movesSet1.isEmpty() && ghostMove1) {
                 safeKingMoves.add(move);
