@@ -65,12 +65,12 @@ public class UserService {
             throw new Exception("bad request");
         }
         var game = new ChessGame();
-        //Random rand = new Random();
-        //int gameId = rand.nextInt(10000);
-        int gameId = numberOfGames;
-        numberOfGames++;
-        var gameData = new GameData(gameId, null, null, gameName, game);
-        var gameInfo = new GameInfo(gameId, "", "", gameName);
+        Random rand = new Random();
+        int gameID = rand.nextInt(10000);
+        //int gameId = numberOfGames;
+        //numberOfGames++;
+        var gameData = new GameData(gameID, null, null, gameName, game);
+        var gameInfo = new GameInfo(gameID, null, null, gameName);
         dataAccess.createGame(gameData, gameInfo);
 
         return gameData;
@@ -111,12 +111,6 @@ public class UserService {
             blackUsername = username;
         }
         var updatedGame = new GameData(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName(), gameData.game());
-        if(whiteUsername == null) {
-            whiteUsername = "";
-        }
-        else if(blackUsername == null) {
-            blackUsername = "";
-        }
         var updatedGameInfo = new GameInfo(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName());
         dataAccess.updateGame(updatedGame, updatedGameInfo);
 

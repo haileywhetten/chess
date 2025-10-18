@@ -1,12 +1,10 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class MemoryDataAccess implements DataAccess{
     private final HashMap<String, UserData> users = new HashMap<>();
@@ -50,7 +48,7 @@ public class MemoryDataAccess implements DataAccess{
     @Override
     public void createGame(GameData gameData, GameInfo gameInfo) {
         games.put(gameData.gameId(), gameData);
-        gameInfos.put(gameInfo.gameId(), gameInfo);
+        gameInfos.put(gameInfo.gameID(), gameInfo);
     }
 
     @Override
@@ -61,13 +59,17 @@ public class MemoryDataAccess implements DataAccess{
     @Override
     public List<GameInfo> listGames() {
         var list = new ArrayList<>(gameInfos.values());
+        for (GameInfo gameInfo : list) {
+            System.out.println(gameInfo);
+        }
         return list;
     }
 
     @Override
     public void updateGame(GameData game, GameInfo gameInfo) {
         games.put(game.gameId(), game);
-        gameInfos.put(gameInfo.gameId(), gameInfo);
+        gameInfos.put(gameInfo.gameID(), gameInfo);
+
     }
 }
 

@@ -39,8 +39,6 @@ class DataAccessTest {
         db.createGame(game1, game1Info);
         db.createGame(game2, game2Info);
         var list = db.listGames();
-        System.out.println(list.get(0));
-        System.out.println(list.get(1));
         assertThrows(Exception.class, () -> System.out.println(list.get(2)));
         assertNotNull(list);
     }
