@@ -2,11 +2,11 @@ package model;
 
 import chess.ChessGame;
 
-public record ColorIdPair(ChessGame.TeamColor playerColor, String gameId) {
+public record ColorIdPair(ChessGame.TeamColor playerColor, int gameID) {
     public ChessGame.TeamColor getColor() {
         return playerColor;
     }
-    public String getId() {
-        return gameId;
+    public int getId() {
+        return gameID;
     }
 }

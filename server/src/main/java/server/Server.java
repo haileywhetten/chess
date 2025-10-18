@@ -159,13 +159,7 @@ public class Server {
             String requestJson = ctx.body();
             //var authToken = serializer.fromJson(authTokenJson, String.class);
             var colorAndId = serializer.fromJson(requestJson, ColorIdPair.class);
-            int gameId;
-            if (colorAndId.getId() == null) {
-                gameId = 10000;
-            }
-            else {
-                gameId = Integer.parseInt(colorAndId.getId());
-            }
+            int gameId = colorAndId.getId();
             userService.joinGame(authToken, gameId, colorAndId.getColor());
             ctx.result("{}");
 

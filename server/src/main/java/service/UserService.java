@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class UserService {
     private final DataAccess dataAccess;
-    private int numberOfGames = 0;
+    private int numberOfGames = 1;
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -70,7 +70,7 @@ public class UserService {
         int gameId = numberOfGames;
         numberOfGames++;
         var gameData = new GameData(gameId, null, null, gameName, game);
-        var gameInfo = new GameInfo(gameId, null, null, gameName);
+        var gameInfo = new GameInfo(gameId, "", "", gameName);
         dataAccess.createGame(gameData, gameInfo);
 
         return gameData;
@@ -96,14 +96,6 @@ public class UserService {
         }
         String whiteUsername;
         String blackUsername;
-        //String colorUpper;
-        /*if(teamColor!= null) {
-            colorUpper = teamColor.toUpperCase();
-        }
-        else{
-            colorUpper = null;
-        }*/
-        //if(colorUpper != null && colorUpper.equals("WHITE")) {
         if(teamColor == ChessGame.TeamColor.WHITE) {
             if(gameData.whiteUsername() != null) {
                 throw new Exception("already taken");
@@ -111,7 +103,6 @@ public class UserService {
             whiteUsername = username;
             blackUsername = gameData.blackUsername();
         }
-        //else if (colorUpper != null && colorUpper.equals("BLACK")){
         else {
             if(gameData.blackUsername() != null) {
                 throw new Exception("already taken");
@@ -119,8 +110,13 @@ public class UserService {
             whiteUsername = gameData.whiteUsername();
             blackUsername = username;
         }
-        //else {whiteUsername = gameData.whiteUsername(); blackUsername = gameData.blackUsername();}
         var updatedGame = new GameData(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName(), gameData.game());
+        if(whiteUsername == null) {
+            whiteUsername = "";
+        }
+        else if(blackUsername == null) {
+            blackUsername = "";
+        }
         var updatedGameInfo = new GameInfo(gameData.gameId(), whiteUsername, blackUsername, gameData.gameName());
         dataAccess.updateGame(updatedGame, updatedGameInfo);
 
