@@ -38,8 +38,7 @@ public class Server {
             userService.clear();
             ctx.result("{}");
         } catch (Exception ex) {
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            ctx.status(500).result(message);
+            exceptionCatcher(ex, ctx);
         }
     }
     private void register(Context ctx) {
@@ -53,16 +52,7 @@ public class Server {
 
             ctx.result(serializer.toJson(authData));
         } catch (Exception ex) {
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            if(ex.getMessage().equals("already taken")) {
-                ctx.status(403).result(message);
-            }
-            else if(ex.getMessage().equals("bad request")) {
-                ctx.status(400).result(message);
-            }
-            else {
-                ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
 
         }
 
@@ -77,16 +67,7 @@ public class Server {
             ctx.result(serializer.toJson(authData));
 
         } catch(Exception ex){
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            if(ex.getMessage().equals("bad request")) {
-                ctx.status(400).result(message);
-            }
-            else if(ex.getMessage().equals("unauthorized")) {
-                ctx.status(401).result(message);
-            }
-            else {
-                ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
         }
     }
 
@@ -98,13 +79,7 @@ public class Server {
             userService.logout(authToken);
             ctx.result("{}");
         } catch (Exception ex){
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            if(ex.getMessage().equals("unauthorized")) {
-                ctx.status(401).result(message);
-            }
-            else {
-                ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
         }
     }
     private void createGame(Context ctx) {
@@ -121,16 +96,7 @@ public class Server {
             ctx.result(json);
 
         } catch (Exception ex){
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            if(ex.getMessage().equals("bad request")) {
-                ctx.status(400).result(message);
-            }
-            else if(ex.getMessage().equals("unauthorized")) {
-                ctx.status(401).result(message);
-            }
-            else {
-                ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
         }
     }
     private void listGames(Context ctx) {
@@ -143,13 +109,7 @@ public class Server {
         ctx.result(json);
 
         } catch (Exception ex) {
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            if(ex.getMessage().equals("unauthorized")) {
-                ctx.status(401).result(message);
-            }
-            else {
-                ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
         }
     }
     private void joinGame(Context ctx) {
@@ -163,17 +123,11 @@ public class Server {
             ctx.result("{}");
 
         } catch(Exception ex) {
-            var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-            switch (ex.getMessage()) {
-                case "already taken" -> ctx.status(403).result(message);
-                case "bad request" -> ctx.status(400).result(message);
-                case "unauthorized" -> ctx.status(401).result(message);
-                default -> ctx.status(500).result(message);
-            }
+            exceptionCatcher(ex, ctx);
         }
     }
 
-    /*public void exceptionCatcher(Exception ex, Context ctx) {
+    public void exceptionCatcher(Exception ex, Context ctx) {
         var message = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
         switch (ex.getMessage()) {
             case "already taken" -> ctx.status(403).result(message);
@@ -181,7 +135,7 @@ public class Server {
             case "unauthorized" -> ctx.status(401).result(message);
             default -> ctx.status(500).result(message);
         }
-    }*/
+    }
 
     public int run(int desiredPort) {
         server.start(desiredPort);
