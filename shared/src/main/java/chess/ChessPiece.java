@@ -118,17 +118,13 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> bishopOrRookMove(ChessBoard board, ChessPosition myPosition, int increase1, int increase2) {
-        var moves = new HashSet<ChessMove>();
-        moves.addAll(validMovesOneDirection(board, myPosition, increase1, increase2));
-        moves.addAll(validMovesOneDirection(board, myPosition, increase1 * -1, increase2));
-        moves.addAll(validMovesOneDirection(board, myPosition, increase1, increase2 * -1));
-        moves.addAll(validMovesOneDirection(board, myPosition, increase1 * -1, increase2 * -1));
-        return moves;
-    }
-
     private Collection<ChessMove> bishopMove(ChessBoard board, ChessPosition myPosition) {
-        return new HashSet<ChessMove>(bishopOrRookMove(board, myPosition, 1, 1));
+        var moves = new HashSet<ChessMove>();
+        moves.addAll(validMovesOneDirection(board, myPosition, 1, 1));
+        moves.addAll(validMovesOneDirection(board, myPosition, 1, -1));
+        moves.addAll(validMovesOneDirection(board, myPosition, -1, 1));
+        moves.addAll(validMovesOneDirection(board, myPosition, -1, -1));
+        return moves;
     }
     private Collection<ChessMove> kingMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
@@ -356,78 +352,10 @@ public class ChessPiece {
     }
     private Collection<ChessMove> rookMove(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
-        boolean validMove = true;
-        int currRow = myPosition.getRow();
-        int currCol = myPosition.getColumn();
-
-        while (validMove) {
-            currRow++;
-            var newPosition = new ChessPosition(currRow, currCol);
-            validMove = isPositionValid(board, newPosition);
-
-            if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, null);
-                moves.add(newMove);
-                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
-                    validMove = false;
-                }
-            }
-
-        }
-        validMove = true;
-        currRow = myPosition.getRow();
-        currCol = myPosition.getColumn();
-
-        while (validMove) {
-            currRow--;
-            var newPosition = new ChessPosition(currRow, currCol);
-            validMove = isPositionValid(board, newPosition);
-
-            if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, null);
-                moves.add(newMove);
-                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
-                    validMove = false;
-                }
-            }
-
-        }
-        validMove = true;
-        currRow = myPosition.getRow();
-        currCol = myPosition.getColumn();
-
-        while (validMove) {
-            currCol++;
-            var newPosition = new ChessPosition(currRow, currCol);
-            validMove = isPositionValid(board, newPosition);
-
-            if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, null);
-                moves.add(newMove);
-                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
-                    validMove = false;
-                }
-            }
-
-        }
-        validMove = true;
-        currRow = myPosition.getRow();
-        currCol = myPosition.getColumn();
-
-        while (validMove) {
-            currCol--;
-            var newPosition = new ChessPosition(currRow, currCol);
-            validMove = isPositionValid(board, newPosition);
-
-            if(validMove) {
-                var newMove = new ChessMove(myPosition, newPosition, null);
-                moves.add(newMove);
-                if(board.getPiece(newPosition) != null && !(board.getPiece(newPosition).getTeamColor().equals(pieceColor))) {
-                    validMove = false;
-                }
-            }
-
-        }
+        moves.addAll(validMovesOneDirection(board, myPosition, 1, 0));
+        moves.addAll(validMovesOneDirection(board, myPosition,  -1, 0));
+        moves.addAll(validMovesOneDirection(board, myPosition, 0, 1));
+        moves.addAll(validMovesOneDirection(board, myPosition, 0, -1));
         return moves;
     }
 
