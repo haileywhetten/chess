@@ -251,15 +251,33 @@ public class ChessGame {
                         moves.add(startPosition);
                     }
                     if(piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        var queenMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.QUEEN);
-                        var rookMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.ROOK);
-                        var knightMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.KNIGHT);
-                        var bishopMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.BISHOP);
-                        if(pieceMoves.contains(queenMove) || pieceMoves.contains(rookMove) ||
-                                pieceMoves.contains(knightMove) || pieceMoves.contains(bishopMove)) {moves.add(startPosition);
-                        }
+                        var pawnMoves = getPawnMoves(kingPosition, startPosition);
+                        moves.addAll(pawnCheck(pieceMoves, startPosition, pawnMoves));
                     }
                 }
+            }
+        }
+        return moves;
+    }
+
+    private static HashSet<ChessMove> getPawnMoves(ChessPosition kingPosition, ChessPosition startPosition) {
+        var queenMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.QUEEN);
+        var rookMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.ROOK);
+        var knightMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.KNIGHT);
+        var bishopMove = new ChessMove(startPosition, kingPosition, ChessPiece.PieceType.BISHOP);
+        var pawnMoves = new HashSet<ChessMove>();
+        pawnMoves.add(queenMove);
+        pawnMoves.add(rookMove);
+        pawnMoves.add(knightMove);
+        pawnMoves.add(bishopMove);
+        return pawnMoves;
+    }
+
+    public Collection<ChessPosition> pawnCheck(Collection<ChessMove> pieceMoves, ChessPosition startPosition, Collection<ChessMove> pawnMoves) {
+        var moves = new HashSet<ChessPosition>();
+        for(ChessMove move : pawnMoves) {
+            if(pieceMoves.contains(move)) {
+                moves.add(startPosition);
             }
         }
         return moves;
@@ -278,15 +296,21 @@ public class ChessGame {
                 var piece = board.getPiece(currentPosition);
                 if(piece != null && piece.getTeamColor() == teamColor) {
                     var pieceMoves = piece.pieceMoves(board, currentPosition);
-                    for(ChessMove move : pieceMoves) {
-                        var ghostMove = makeGhostMove(move, teamColor, kingPosition);
-                        if(ghostMove) {newValidMoves.add(move);
-                        }
-                    }
+                    newValidMoves.addAll(makeAndCheckGhostMove(pieceMoves, teamColor, kingPosition));
                 }
             }
         }
         return newValidMoves;
+    }
+    public Collection<ChessMove> makeAndCheckGhostMove(Collection<ChessMove> pieceMoves, TeamColor teamColor, ChessPosition kingPosition) {
+        var moves = new HashSet<ChessMove>();
+        for(ChessMove move : pieceMoves) {
+            var ghostMove = makeGhostMove(move, teamColor, kingPosition);
+            if(ghostMove) {
+                moves.add(move);
+            }
+        }
+        return moves;
     }
     public void findKing(ChessBoard theBoard) {
         for(int i = 0; i < 8; i++) {
