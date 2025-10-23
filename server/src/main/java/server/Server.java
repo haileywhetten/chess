@@ -1,7 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.MemoryDataAccess;
+import dataaccess.*;
+import dataaccess.SqlDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
@@ -18,6 +19,7 @@ public class Server {
 
     public Server() {
         var dataAccess = new MemoryDataAccess();
+        //var dataAccess = new SqlDataAccess();
         server = Javalin.create(config -> config.staticFiles.add("web"));
         userService = new UserService(dataAccess);
         // Register your endpoints and exception handlers here.
