@@ -142,6 +142,8 @@ public class SqlDataAccess implements DataAccess{
                 ps.setString(3, gameData.blackUsername());
                 ps.setString(4, gameData.gameName());
                 ps.setString(5, new Gson().toJson(gameData.game()));
+                System.out.printf("Inserting game: id=%d, white=%s, black=%s, name=%s%n",
+                        gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
                 ps.executeUpdate();
             }
         } catch(Exception ex) {
@@ -190,12 +192,13 @@ public class SqlDataAccess implements DataAccess{
     @Override
     public void updateGame(GameData game, GameInfo gameInfo) {
         try(Connection conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, json = ?";
+            var statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, json = ? WHERE gameID = ?";
             try(PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, game.whiteUsername());
                 ps.setString(2, game.blackUsername());
                 ps.setString(3, game.gameName());
                 ps.setString(4, new Gson().toJson(game.game()));
+                ps.setInt(5, game.gameId());
                 ps.executeUpdate();
             }
         } catch (Exception ex) {
