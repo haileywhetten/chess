@@ -24,6 +24,7 @@ class DataAccessTest {
 
     @Test
     void createUser() {
+        clear();
         String password = "toomanysecrets";
         var user = new UserData("joe", password, "j@j.com");
         db.createUser(user);
@@ -41,6 +42,7 @@ class DataAccessTest {
 
     @Test
     void getUser() {
+        clear();
         String username = "hailey";
         String password = "whetten";
         String email = "h@h.com";
@@ -88,6 +90,7 @@ class DataAccessTest {
 
     @Test
     void deleteAuth() {
+        clear();
         createAuth();
         String username = "joe";
         var fakeAuthToken = "123456";
@@ -195,11 +198,12 @@ class DataAccessTest {
 
     @Test
     void updateGameFail() {
-        //createGame();
         clear();
-        GameData gameData = new GameData(12, "burt", "joe", "hailey destorys joe", new ChessGame());
-        GameInfo gameInfo = new GameInfo(12, "burt", "joe", "hailey destorys joe");
-        assertThrows(Exception.class, () -> db.updateGame(gameData, gameInfo));
+        createGame();
+        GameData gameData = new GameData(13, "burt", "joe", "hailey destroys joe", new ChessGame());
+        GameInfo gameInfo = new GameInfo(13, "burt", "joe", "hailey destroys joe");
+        db.updateGame(gameData, gameInfo);
+        assertNull(db.getGame(gameData.gameId()));
     }
 
 
