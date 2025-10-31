@@ -155,6 +155,12 @@ class DataAccessTest {
     }
 
     @Test
+    void getGameNegative() {
+        clear();
+        assertNull(db.getGame(111));
+    }
+
+    @Test
     void listGames() {
         clear();
         var game1 = new GameData(1234, "hailey", "whetten", "game1", new ChessGame());
@@ -169,6 +175,12 @@ class DataAccessTest {
     }
 
     @Test
+    void listGamesNegative() {
+        clear();
+        assertTrue(db.listGames().isEmpty());
+    }
+
+    @Test
     void updateGame() {
         var newUsername = "joe";
         var game3 = new GameData(1, null, null, "game3", new ChessGame());
@@ -179,6 +191,15 @@ class DataAccessTest {
         db.updateGame(game3New, game3NewInfo);
         assertNotNull(db.getGame(game3New.gameId()));
         assertEquals(newUsername, db.getGame(game3New.gameId()).blackUsername());
+    }
+
+    @Test
+    void updateGameFail() {
+        //createGame();
+        clear();
+        GameData gameData = new GameData(12, "burt", "joe", "hailey destorys joe", new ChessGame());
+        GameInfo gameInfo = new GameInfo(12, "burt", "joe", "hailey destorys joe");
+        assertThrows(Exception.class, () -> db.updateGame(gameData, gameInfo));
     }
 
 
