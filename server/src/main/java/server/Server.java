@@ -48,8 +48,6 @@ public class Server {
             var serializer = new Gson();
             String requestJson = ctx.body();
             var user = serializer.fromJson(requestJson, UserData.class);
-
-            //call to service and register
             AuthData authData = userService.register(user);
 
             ctx.result(serializer.toJson(authData));

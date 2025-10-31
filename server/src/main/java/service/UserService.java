@@ -26,7 +26,6 @@ public class UserService {
         if(dataAccess.getUser(user.username()) != null){
             throw new Exception("already taken");
         }
-        dataAccess.createUser(user);
         AuthData authData = new AuthData(user.username(), generateToken());
         dataAccess.createUser(user);
         dataAccess.createAuth(authData);
