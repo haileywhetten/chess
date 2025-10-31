@@ -32,6 +32,14 @@ class DataAccessTest {
     }
 
     @Test
+    void createUserNegative() {
+        clear();
+        createUser();
+        var user = new UserData("joe", "hello", "9@9.com");
+        assertThrows(Exception.class, () -> db.createUser(user));
+    }
+
+    @Test
     void getUser() {
         String username = "hailey";
         String password = "whetten";
@@ -44,6 +52,11 @@ class DataAccessTest {
     }
 
     @Test
+    void getUserNegative() {
+        assertNull(db.getUser("nonsense username"));
+    }
+
+    @Test
     void createAuth() {
         createUser();
         String username = "joe";
@@ -51,6 +64,12 @@ class DataAccessTest {
         var authData = new AuthData(username, fakeAuthToken);
         db.createAuth(authData);
         assertEquals(authData, db.getAuth(fakeAuthToken));
+    }
+
+    @Test
+    void createAuthNegative() {
+        var authDataFake = new AuthData("fake username doesn't exist", "12345");
+        assertThrows(Exception.class, () -> db.createAuth(authDataFake));
     }
 
     @Test
