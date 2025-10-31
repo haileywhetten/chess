@@ -47,12 +47,12 @@ public class SqlDataAccess implements DataAccess{
                 ps.executeUpdate();
             }
         } catch(Exception ex) {
-            //stop it
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
     }
 
     @Override
-    public void createUser(UserData user)  {
+    public void createUser(UserData user) {
         try(Connection conn = DatabaseManager.getConnection()) {
             var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
             try(PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -62,7 +62,7 @@ public class SqlDataAccess implements DataAccess{
                 ps.executeUpdate();
             }
         } catch(Exception ex) {
-            //Figure out later lol
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
 
 
@@ -81,8 +81,8 @@ public class SqlDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch (Exception e) {
-            //Do something with this lol
+        } catch (Exception ex) {
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
         return null;
     }
@@ -97,7 +97,7 @@ public class SqlDataAccess implements DataAccess{
                 ps.executeUpdate();
             }
         } catch(Exception ex) {
-            //Figure out later lol
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
     }
 
@@ -113,8 +113,8 @@ public class SqlDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch (Exception e) {
-            //Do something with this lol
+        } catch (Exception ex) {
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
         return null;
     }
@@ -128,7 +128,7 @@ public class SqlDataAccess implements DataAccess{
                 ps.executeUpdate();
             }
         } catch (Exception ex) {
-            //later
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
     }
 
@@ -142,33 +142,12 @@ public class SqlDataAccess implements DataAccess{
                 ps.setString(3, gameData.blackUsername());
                 ps.setString(4, gameData.gameName());
                 ps.setString(5, new Gson().toJson(gameData.game()));
-                System.out.println("\nGot to execute update");
                 ps.executeUpdate();
             }
         } catch(Exception ex) {
-            //Figure out later lol
-            System.out.println("\nSomething didn't work");
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
     }
-    /*public Boolean createGame1(GameData gameData, GameInfo gameInfo) {
-        try(Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?)";
-            try(PreparedStatement ps = conn.prepareStatement(statement)) {
-                System.out.println("Got into prepared statement");
-                ps.setString(1, gameData.whiteUsername());
-                ps.setString(2, gameData.blackUsername());
-                ps.setString(3, gameData.gameName());
-                ps.setString(4, gameData.game().toString());
-                System.out.println("\nGot to execute update");
-                ps.executeUpdate();
-                return true;
-            }
-        } catch(Exception ex) {
-            //Figure out later lol
-            System.out.println("\nSomething didn't work");
-            return false;
-        }
-    }*/
 
     @Override
     public GameData getGame(int gameId) {
@@ -177,19 +156,14 @@ public class SqlDataAccess implements DataAccess{
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    System.out.println("Got into result set");
                     if (rs.next()) {
-                        System.out.println("got into rs.next()");
-                        String jsonString = rs.getString("json");
-                        System.out.println("JSON value from DB: " + jsonString);
                         ChessGame game = new Gson().fromJson(rs.getString("json"), ChessGame.class);
                         return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), game);
                     }
                 }
             }
-        } catch (Exception exception) {
-            //Do something with this lol
-            System.out.println("\nSomething didn't work: " + exception.getMessage());
+        } catch (Exception ex) {
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
         return null;
     }
@@ -207,8 +181,8 @@ public class SqlDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch (Exception exception) {
-            System.out.println("\nSomething didn't work: " + exception.getMessage());
+        } catch (Exception ex) {
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
         return result;
     }
@@ -224,33 +198,10 @@ public class SqlDataAccess implements DataAccess{
                 ps.setString(4, new Gson().toJson(game.game()));
                 ps.executeUpdate();
             }
-        } catch (Exception exception) {
-            //Do something
+        } catch (Exception ex) {
+            throw new RuntimeException("Database error: " + ex.getMessage(), ex);
         }
     }
-    /*private int executeUpdate(String statement, Object... params) throws Exception {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    //else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-                    //else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new Exception();
-        }
-    }*/
 
     private final String[] createStatements = {
             """
