@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -186,16 +187,30 @@ public class SqlDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception exception) {
             //Do something with this lol
-            System.out.println("\nSomething didn't work");
+            System.out.println("\nSomething didn't work: " + exception.getMessage());
         }
         return null;
     }
 
     @Override
     public List<GameInfo> listGames() {
-        return List.of();
+        var result = new ArrayList<GameInfo>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName FROM game";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        GameInfo gameInfo = new GameInfo(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"));
+                        result.add(gameInfo);
+                    }
+                }
+            }
+        } catch (Exception exception) {
+            System.out.println("\nSomething didn't work: " + exception.getMessage());
+        }
+        return result;
     }
 
     @Override
