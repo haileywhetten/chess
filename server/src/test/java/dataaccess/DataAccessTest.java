@@ -82,12 +82,30 @@ class DataAccessTest {
     }
 
     @Test
+    void getAuthNegative() {
+        assertNull(db.getAuth("not a real authToken"));
+    }
+
+    @Test
     void deleteAuth() {
         createAuth();
         String username = "joe";
         var fakeAuthToken = "123456";
         db.deleteAuth(new AuthData(username, fakeAuthToken));
         assertNull(db.getAuth(fakeAuthToken));
+    }
+
+    @Test
+    void deleteAuthNegative() {
+        db.clear();
+        var newUser = new UserData("hi", "1", "2");
+        db.createUser(newUser);
+        var newAuth = new AuthData("hi", "123");
+        db.createAuth(newAuth);
+        var fakeAuth = new AuthData("5", "555");
+        db.deleteAuth(fakeAuth);
+        assertNotNull(db.getAuth(newAuth.authToken()));
+
     }
 
     @Test
@@ -104,6 +122,23 @@ class DataAccessTest {
         GameInfo gameInfo = new GameInfo(gameId, whiteUsername, blackUsername, gameName);
         db.createGame(gameData, gameInfo);
         assertEquals(gameData, db.getGame(gameId));
+    }
+
+    @Test
+    void createGameNegative() {
+        clear();
+        createUser();
+        int gameId = 15;
+        String game1Name = "1";
+        String game2Name = "2";
+        ChessGame chessGame1 = new ChessGame();
+        ChessGame chessGame2 = new ChessGame();
+        GameData game1 = new GameData(gameId, null, null, game1Name, chessGame1);
+        GameData game2 = new GameData(gameId, null, null, game2Name, chessGame2);
+        GameInfo game1Info = new GameInfo(gameId, null, null, game1Name);
+        GameInfo game2Info = new GameInfo(gameId, null, null, game2Name);
+        db.createGame(game1, game1Info);
+        assertThrows(Exception.class, () -> db.createGame(game2, game2Info));
     }
 
     @Test
