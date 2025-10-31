@@ -18,8 +18,8 @@ public class Server {
     private final UserService userService;
 
     public Server() {
-        var dataAccess = new MemoryDataAccess();
-        //var dataAccess = new SqlDataAccess();
+        //var dataAccess = new MemoryDataAccess();
+        var dataAccess = new SqlDataAccess();
         server = Javalin.create(config -> config.staticFiles.add("web"));
         userService = new UserService(dataAccess);
         // Register your endpoints and exception handlers here.

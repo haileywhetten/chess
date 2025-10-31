@@ -1,50 +1,149 @@
 package dataaccess;
 
+import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.GameInfo;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
+import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
 public class SqlDataAccess implements DataAccess{
-    public SqlDataAccess() throws DataAccessException {
-        DatabaseManager.createDatabase();
+    public SqlDataAccess() {
+        try {
+            DatabaseManager.createDatabase();
+            configureDatabase();
+        }
+        catch (Exception ex) {
+            System.out.println("Bruh it aint working lol");
+        }
+
     }
 
     @Override
     public void clear() {
-
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement1 = "DELETE from auth";
+            var statement2 = "DELETE from user";
+            var statement3 = "DELETE from game";
+            try(PreparedStatement ps = conn.prepareStatement(statement1)) {
+                ps.executeUpdate();
+            }
+            try(PreparedStatement ps = conn.prepareStatement(statement2)) {
+                ps.executeUpdate();
+            }
+            try(PreparedStatement ps = conn.prepareStatement(statement3)) {
+                ps.executeUpdate();
+            }
+        } catch(Exception ex) {
+            //stop it
+        }
     }
 
     @Override
-    public void createUser(UserData user) {
+    public void createUser(UserData user)  {
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            try(PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, user.username());
+                ps.setString(2, BCrypt.hashpw(user.password(), BCrypt.gensalt()));
+                ps.setString(3, user.email());
+                ps.executeUpdate();
+            }
+        } catch(Exception ex) {
+            //Figure out later lol
+        }
+
+
 
     }
 
     @Override
     public UserData getUser(String username) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //Do something with this lol
+        }
         return null;
     }
 
     @Override
     public void createAuth(AuthData authData) {
-
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
+            try(PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authData.username());
+                ps.setString(2, authData.authToken());
+                ps.executeUpdate();
+            }
+        } catch(Exception ex) {
+            //Figure out later lol
+        }
     }
 
     @Override
     public AuthData getAuth(String authToken) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, authToken FROM auth WHERE authToken=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AuthData(rs.getString("username"), rs.getString("authToken"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //Do something with this lol
+        }
         return null;
     }
 
     @Override
     public void deleteAuth(AuthData authData) {
-
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement = "DELETE from auth where authToken=?";
+            try(PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authData.authToken());
+                ps.executeUpdate();
+            }
+        } catch (Exception ex) {
+            //later
+        }
     }
 
     @Override
     public void createGame(GameData gameData, GameInfo gameInfo) {
-
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO game (gameId, whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?, ?)";
+            try(PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameData.gameId());
+                ps.setString(2, gameData.whiteUsername());
+                ps.setString(3, gameData.blackUsername());
+                ps.setString(4, gameData.gameName());
+                ps.setString(5, gameData.game().toString());
+                ps.executeUpdate();
+            }
+        } catch(Exception ex) {
+            //Figure out later lol
+        }
     }
 
     @Override
@@ -60,5 +159,69 @@ public class SqlDataAccess implements DataAccess{
     @Override
     public void updateGame(GameData game, GameInfo gameInfo) {
 
+    }
+    /*private int executeUpdate(String statement, Object... params) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    //else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
+                    //else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new Exception();
+        }
+    }*/
+
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  user (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  auth (
+              `username` varchar(256) NOT NULL,
+              `authToken` varchar(256) NOT NULL,
+              PRIMARY KEY (`authToken`),
+              FOREIGN KEY (`username`) REFERENCES user(`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  game (
+              `gameID` int NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              `gameName` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
+              PRIMARY KEY (`gameID`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    private void configureDatabase() throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (Exception ex) {
+            throw new Exception();
+        }
     }
 }
