@@ -114,5 +114,18 @@ class DataAccessTest {
         assertNotNull(list);
     }
 
+    @Test
+    void updateGame() {
+        var newUsername = "joe";
+        var game3 = new GameData(1, null, null, "game3", new ChessGame());
+        var game3Info = new GameInfo(game3.gameId(), game3.whiteUsername(), game3.blackUsername(), game3.gameName());
+        db.createGame(game3, game3Info);
+        var game3New = new GameData(1, null, newUsername, "game3", new ChessGame());
+        var game3NewInfo = new GameInfo(game3New.gameId(), game3New.whiteUsername(), game3New.blackUsername(), game3New.gameName());
+        db.updateGame(game3New, game3NewInfo);
+        assertNotNull(db.getGame(game3New.gameId()));
+        assertEquals(newUsername, db.getGame(game3New.gameId()).blackUsername());
+    }
+
 
 }
