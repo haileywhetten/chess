@@ -15,4 +15,5 @@ public interface DataAccess {
     GameData getGame(int gameId);
     List<GameInfo> listGames();
     void updateGame(GameData game, GameInfo gameInfo);
+    //public Boolean createGame1(GameData gameData, GameInfo gameInfo);
 }

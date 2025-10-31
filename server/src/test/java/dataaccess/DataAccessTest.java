@@ -83,4 +83,34 @@ class DataAccessTest {
         db.deleteAuth(new AuthData(username, fakeAuthToken));
         assertNull(db.getAuth(fakeAuthToken));
     }
+
+    @Test
+    void createGame() {
+        clear();
+        createUser();
+        getUser();
+        int gameId = 12;
+        String whiteUsername = "hailey";
+        String blackUsername = "joe";
+        String gameName = "hailey destroys joe";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameId, whiteUsername, blackUsername, gameName, game);
+        GameInfo gameInfo = new GameInfo(gameId, whiteUsername, blackUsername, gameName);
+        db.createGame(gameData, gameInfo);
+        assertEquals(gameData, db.getGame(gameId));
+    }
+
+    @Test
+    void getGame() {
+        createGame();
+        int gameId = 12;
+        String whiteUsername = "hailey";
+        String blackUsername = "joe";
+        String gameName = "hailey destroys joe";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameId, whiteUsername, blackUsername, gameName, game);
+        assertEquals(gameData, db.getGame(gameId));
+
+    }
+
 }

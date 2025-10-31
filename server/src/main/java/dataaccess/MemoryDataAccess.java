@@ -11,6 +11,7 @@ public class MemoryDataAccess implements DataAccess{
     private final HashMap<Integer, GameData> games = new HashMap<>();
     private final HashMap<String, AuthData> auths = new HashMap<>();
     private final HashMap<Integer, GameInfo> gameInfos = new HashMap<>();
+    //public Boolean createGame1(GameData gameData, GameInfo gameInfo) {return false;}
     @Override
     public void clear() {
         users.clear();
