@@ -160,7 +160,8 @@ public class SqlDataAccess implements DataAccess{
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         ChessGame game = new Gson().fromJson(rs.getString("json"), ChessGame.class);
-                        return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), game);
+                        return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"), rs.getString("gameName"), game);
                     }
                 }
             }
@@ -178,7 +179,8 @@ public class SqlDataAccess implements DataAccess{
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        GameInfo gameInfo = new GameInfo(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"));
+                        GameInfo gameInfo = new GameInfo(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"), rs.getString("gameName"));
                         result.add(gameInfo);
                     }
                 }
