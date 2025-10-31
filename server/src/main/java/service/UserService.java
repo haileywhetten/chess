@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.DataAccess;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Random;
@@ -36,7 +37,7 @@ public class UserService {
         if(user.username() == null || user.password() == null) {
             throw new Exception("bad request");
         }
-        if(dataAccess.getUser(user.username()) == null || !dataAccess.getUser(user.username()).password().equals(user.password())) {
+        if(dataAccess.getUser(user.username()) == null || !BCrypt.checkpw(user.password(), dataAccess.getUser(user.username()).password())) {
             throw new Exception("unauthorized");
         }
 
