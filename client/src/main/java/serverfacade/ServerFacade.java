@@ -1,3 +1,4 @@
+package serverfacade;
 
 import com.google.gson.Gson;
 import model.*;
@@ -13,9 +14,11 @@ import java.util.List;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private final int port;
 
-    public ServerFacade(String url) {
-        serverUrl = url;
+    public ServerFacade(/*String url,*/ int port) {
+        this.port = port;
+        serverUrl = String.format("http://localhost:%d", port);
     }
 
     public void delete() throws Exception {
