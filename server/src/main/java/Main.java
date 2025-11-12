@@ -8,7 +8,7 @@ public class Main {
         Server server = new Server();
         server.run(8080);
 
-        System.out.println("♕ 240 Chess Server");
+        System.out.println("♕ Welcome to Hailey's Chess Server. Type help for a list of commands");
 
         while (true) {
             System.out.printf("Type your numbers%n>>> ");

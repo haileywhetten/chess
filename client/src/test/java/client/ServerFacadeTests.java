@@ -3,14 +3,13 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade facade;
-    private static SqlDataAccess db;
 
     @BeforeAll
     public static void init() {
@@ -26,11 +25,19 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    void clearDatabase() {db.clear();};
+    void clearDatabase() throws Exception {
+        try {
+            facade.delete();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    };
 
 
     @Test
-    public void delete() {
+    public void delete() throws Exception {
+        assertDoesNotThrow(()->facade.delete());
+        assertThrows(Exception.class, () -> facade.listGames());
     }
 
     @Test
