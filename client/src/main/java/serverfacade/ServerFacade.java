@@ -1,24 +1,26 @@
 package serverfacade;
 
+import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
 import model.*;
 
+import java.awt.*;
 import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
-    private final int port;
+    //private final int port;
 
     public ServerFacade(/*String url,*/ int port) {
-        this.port = port;
+        //this.port = port;
         serverUrl = String.format("http://localhost:%d", port);
     }
 
@@ -53,9 +55,11 @@ public class ServerFacade {
         return gameResponse.gameID();
     }
 
-    public void joinGame(ColorIdPair colorAndId, AuthData auth) throws Exception {
+    public <T> T joinGame(int gameID, ChessGame.TeamColor playerColor, AuthData auth) throws Exception {
+        ColorIdPair colorAndId = new ColorIdPair(playerColor, gameID);
         var request = buildRequest("PUT", "/game", colorAndId, auth.authToken());
-        sendRequest(request);
+        var response = sendRequest(request);
+        return handleResponse(response, null);
     }
 
     public List<GameInfo> listGames(AuthData auth) throws Exception {

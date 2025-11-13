@@ -95,11 +95,24 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void joinGame() {
+    public void joinGame() throws Exception {
+        var authData = facade.register(user);
+        var gameID = facade.createGame("game1", authData);
+        assertDoesNotThrow(() -> facade.joinGame(gameID, ChessGame.TeamColor.BLACK, authData));
+        assertEquals(facade.listGames(authData).getFirst().blackUsername(), user.username());
+
     }
 
     @Test
-    public void joinGameBad() {
+    public void joinGameBad() throws Exception {
+        var authData = facade.register(user);
+        var authData2 = facade.register(new UserData("ww", "hh", "ee"));
+        assertThrows(Exception.class, () -> facade.joinGame(123, ChessGame.TeamColor.WHITE, authData));
+        var gameID = facade.createGame("Hailey's game", authData);
+        assertDoesNotThrow(() -> facade.joinGame(gameID, ChessGame.TeamColor.WHITE, authData));
+        assertDoesNotThrow(() -> facade.joinGame(gameID, ChessGame.TeamColor.BLACK, authData2));
+        assertThrows(Exception.class, () -> facade.joinGame(gameID, ChessGame.TeamColor.WHITE, authData2));
+        assertThrows(Exception.class, () -> facade.joinGame(gameID, ChessGame.TeamColor.BLACK, authData));
     }
 
     @Test
