@@ -1,4 +1,5 @@
 import dataaccess.SqlDataAccess;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
@@ -41,19 +42,26 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void register() {
+    public void register() throws Exception {
+        var authData = facade.register(new UserData("player1", "password", "p1@email.com"));
+        assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
     public void registerBad() {
+        assertThrows(Exception.class, () -> facade.register(new UserData("you", null, "@@")));
     }
 
     @Test
-    public void login() {
+    public void login() throws Exception {
+        var user = new UserData("h", "w", "@");
+        facade.register(user);
+        assertTrue(facade.login(user).authToken().length() > 20);
     }
 
     @Test
-    public void loginBad() {
+    public void loginBad() throws Exception {
+        assertThrows(Exception.class, () -> facade.login(new UserData("bbb", "bbb", "@@")));
     }
 
     @Test
