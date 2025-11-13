@@ -1,21 +1,10 @@
 import server.Server;
 
-import java.util.Arrays;
-import java.util.Scanner;
-
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Server server = new Server();
         server.run(8080);
 
-        System.out.println("♕ Welcome to Hailey's Chess Server. Type help for a list of commands");
-
-        while (true) {
-            System.out.printf("Type your numbers%n>>> ");
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            var numbers = line.split(" ");
-            System.out.println(Arrays.toString(numbers));
-        }
+        System.out.println("♕ 240 Chess Server");
     }
 }
