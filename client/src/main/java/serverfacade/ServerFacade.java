@@ -61,9 +61,9 @@ public class ServerFacade {
     public List<GameInfo> listGames(AuthData auth) throws Exception {
         var request = buildRequest("GET", "/game", null, auth.authToken());
         var response = sendRequest(request);
-        GameInfo[] gamesArray = handleResponse(response, GameInfo[].class);
-        assert gamesArray != null;
-        return Arrays.asList(gamesArray);
+        GamesListResponse games = handleResponse(response, GamesListResponse.class);
+        assert games != null;
+        return games.games();
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {

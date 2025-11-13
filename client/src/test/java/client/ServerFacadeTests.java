@@ -105,20 +105,19 @@ public class ServerFacadeTests {
     @Test
     public void listGames() throws Exception {
         var authData = facade.register(user);
-        String gameName = "game1";
-        assertDoesNotThrow(() -> facade.createGame(gameName, authData));
+        String gameName1 = "game1";
+        assertDoesNotThrow(() -> facade.createGame(gameName1, authData));
+        String gameName2 = "game2";
+        assertDoesNotThrow(() -> facade.createGame(gameName2, authData));
         assertNotNull(facade.listGames(authData));
     }
 
     @Test
-    public void listGamesBad() {
+    public void listGamesBad() throws Exception {
+        assertThrows(Exception.class, () -> facade.listGames(new AuthData("123", "123")));
+        var authData = facade.register(user);
+        assertTrue(facade.listGames(authData).isEmpty());
+
     }
 
-    @Test
-    public void updateGame() {
-    }
-
-    @Test
-    public void updateGamesBad() {
-    }
 }
