@@ -82,12 +82,16 @@ public class ServerFacadeTests {
     public void createGame() throws Exception {
         var authData = facade.register(user);
         String gameName = "game1";
-        // GameData game = new GameData(123, user.username(), null, "game1", new ChessGame());
+         //GameData game = new GameData(123, user.username(), null, "game1", new ChessGame());
         assertDoesNotThrow(() -> facade.createGame(gameName, authData));
     }
 
     @Test
-    public void createGameBad() {
+    public void createGameBad() throws Exception {
+        var authData = facade.register(user);
+        facade.logout(authData);
+        assertThrows(Exception.class, () -> facade.createGame("game1", authData));
+
     }
 
     @Test
@@ -101,8 +105,8 @@ public class ServerFacadeTests {
     @Test
     public void listGames() throws Exception {
         var authData = facade.register(user);
-        GameData game = new GameData(123, user.username(), null, "game1", new ChessGame());
-        assertDoesNotThrow(() -> facade.createGame(game.gameName(), authData));
+        String gameName = "game1";
+        assertDoesNotThrow(() -> facade.createGame(gameName, authData));
         assertNotNull(facade.listGames(authData));
     }
 

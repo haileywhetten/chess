@@ -10,6 +10,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -45,7 +46,8 @@ public class ServerFacade {
     }
 
     public int createGame(String gameName, AuthData auth) throws Exception {
-        var request = buildRequest("POST", "/game", gameName, auth.authToken());
+        //var body = new Gson().toJson(Map.of("gameName", gameName));
+        var request = buildRequest("POST", "/game", Map.of("gameName", gameName), auth.authToken());
         var response = sendRequest(request);
         var gameResponse = handleResponse(response, GameResponse.class);
         return gameResponse.gameID();

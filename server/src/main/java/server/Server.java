@@ -90,9 +90,10 @@ public class Server {
             String authTokenJson = ctx.header("authorization");
             String gameNameJson = ctx.body();
             var authToken = serializer.fromJson(authTokenJson, String.class);
-            var gameData = serializer.fromJson(gameNameJson, GameData.class);
-            String gameName = gameData.gameName();
-            GameData game = userService.createGame(authToken, gameName);
+            System.out.println("made it after authtoken");
+            var gameName = serializer.fromJson(gameNameJson, CreateGameRequest.class);
+            System.out.println("Made it to the service");
+            GameData game = userService.createGame(authToken, gameName.gameName());
             String json = serializer.toJson(Map.of("gameID", game.gameId()));
 
             ctx.result(json);
