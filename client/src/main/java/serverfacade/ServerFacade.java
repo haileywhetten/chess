@@ -38,9 +38,10 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-    public void logout(AuthData auth) throws Exception {
+    public <T> T logout(AuthData auth) throws Exception {
         var request = buildRequest("DELETE", "/session", auth);
-        sendRequest(request);
+        var response = sendRequest(request);
+        return handleResponse(response, null);
     }
 
     public GameData createGame(AuthData auth) throws Exception {
