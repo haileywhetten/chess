@@ -29,7 +29,8 @@ public class ServerFacade {
         sendRequest(request);
     }
 
-    public AuthData register(UserData user) throws Exception {
+    public AuthData register(String username, String password, String email) throws Exception {
+        var user = new UserData(username, password, email);
         var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
