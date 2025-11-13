@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataaccess.*;
 import dataaccess.SqlDataAccess;
 import io.javalin.*;
@@ -9,6 +10,7 @@ import model.*;
 import service.UserService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -101,10 +103,10 @@ public class Server {
     }
     private void listGames(Context ctx) {
         try{
-        var serializer = new Gson();
+        var serializer = new GsonBuilder().serializeNulls().create();
         String authTokenJson = ctx.header("authorization");
         var authToken = serializer.fromJson(authTokenJson, String.class);
-        var games = userService.listGames(authToken);
+        List<GameInfo> games = userService.listGames(authToken);
         String json = serializer.toJson(Map.of("games", games));
         ctx.result(json);
 

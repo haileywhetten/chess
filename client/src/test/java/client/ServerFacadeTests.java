@@ -1,3 +1,4 @@
+import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -37,8 +38,9 @@ public class ServerFacadeTests {
 
     @Test
     public void delete() throws Exception {
+        var authData = facade.register(user);
         assertDoesNotThrow(()->facade.delete());
-        assertThrows(Exception.class, () -> facade.listGames());
+        assertThrows(Exception.class, () -> facade.logout(authData));
     }
 
     @Test
@@ -67,7 +69,7 @@ public class ServerFacadeTests {
     public void logout() throws Exception {
         var authData = facade.register(user);
         assertDoesNotThrow(() -> facade.logout(authData));
-        assertThrows(Exception.class, () -> facade.listGames());
+        assertThrows(Exception.class, () -> facade.listGames(authData));
 
     }
 
@@ -77,7 +79,11 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void createGame() {
+    public void createGame() throws Exception {
+        var authData = facade.register(user);
+        String gameName = "game1";
+        // GameData game = new GameData(123, user.username(), null, "game1", new ChessGame());
+        assertDoesNotThrow(() -> facade.createGame(gameName, authData));
     }
 
     @Test
@@ -93,7 +99,11 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listGames() {
+    public void listGames() throws Exception {
+        var authData = facade.register(user);
+        GameData game = new GameData(123, user.username(), null, "game1", new ChessGame());
+        assertDoesNotThrow(() -> facade.createGame(game.gameName(), authData));
+        assertNotNull(facade.listGames(authData));
     }
 
     @Test

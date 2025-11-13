@@ -22,53 +22,57 @@ public class ServerFacade {
     }
 
     public void delete() throws Exception {
-        var request = buildRequest("DELETE", "/db", null);
+        var request = buildRequest("DELETE", "/db", null, null);
         sendRequest(request);
     }
 
     public AuthData register(UserData user) throws Exception {
-        var request = buildRequest("POST", "/user", user);
+        var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public AuthData login(UserData user) throws Exception {
-        var request = buildRequest("POST", "/session", user);
+        var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public <T> T logout(AuthData auth) throws Exception {
-        var request = buildRequest("DELETE", "/session", auth);
+        var request = buildRequest("DELETE", "/session", null, auth.authToken());
         var response = sendRequest(request);
         return handleResponse(response, null);
     }
 
-    public GameData createGame(AuthData auth) throws Exception {
-        var request = buildRequest("POST", "/game", auth);
+    public int createGame(String gameName, AuthData auth) throws Exception {
+        var request = buildRequest("POST", "/game", gameName, auth.authToken());
         var response = sendRequest(request);
-        return handleResponse(response, GameData.class);
+        var gameResponse = handleResponse(response, GameResponse.class);
+        return gameResponse.gameID();
     }
 
-    public void joinGame(ColorIdPair colorAndId) throws Exception {
-        var request = buildRequest("PUT", "/game", colorAndId);
+    public void joinGame(ColorIdPair colorAndId, AuthData auth) throws Exception {
+        var request = buildRequest("PUT", "/game", colorAndId, auth.authToken());
         sendRequest(request);
     }
 
-    public List<GameInfo> listGames() throws Exception {
-        var request = buildRequest("GET", "/game", null);
+    public List<GameInfo> listGames(AuthData auth) throws Exception {
+        var request = buildRequest("GET", "/game", null, auth.authToken());
         var response = sendRequest(request);
         GameInfo[] gamesArray = handleResponse(response, GameInfo[].class);
         assert gamesArray != null;
         return Arrays.asList(gamesArray);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("Authorization", authToken);
         }
         return request.build();
     }
