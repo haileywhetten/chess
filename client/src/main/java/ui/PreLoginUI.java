@@ -1,5 +1,6 @@
 package ui;
 
+import model.AuthData;
 import model.UserData;
 import serverfacade.ServerFacade;
 
@@ -8,6 +9,7 @@ import java.util.Scanner;
 
 public class PreLoginUI {
     private final ServerFacade facade;
+    private AuthData auth;
 
     public PreLoginUI(ServerFacade facade) {
         this.facade = facade;
@@ -23,7 +25,9 @@ public class PreLoginUI {
 
             try {
                 result = eval(line);
-                System.out.print(result);
+                if(result.equals("postLogin")) {
+                    result = new PostLoginUI(facade, auth).run();
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -65,16 +69,18 @@ public class PreLoginUI {
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             String[] newInfo = line.toLowerCase().split(" ");
-            if (newInfo.length == 2) {
+            if (newInfo.length >= 2) {
                 var user = new UserData(newInfo[0], newInfo[1], "");
-                facade.login(user);
-                return String.format("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, user.username());
+                auth = facade.login(user);
+                System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, user.username());
+                return "postLogin";
             }
         }
         else if (params.length >= 2) {
             var user = new UserData(params[0], params[1], "");
-            facade.login(user);
-            return String.format("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
+            auth = facade.login(user);
+            System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
+            return "postLogin";
         }
         else{throw new Exception("Please enter a valid username and password.");}
         return null;
@@ -88,13 +94,15 @@ public class PreLoginUI {
                 String line = scanner.nextLine();
                 String[] newInfo = line.toLowerCase().split(" ");
                 if (newInfo.length == 3) {
-                    facade.register(newInfo[0], newInfo[1], newInfo[2]);
-                    return String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, newInfo[0]);
+                    auth = facade.register(newInfo[0], newInfo[1], newInfo[2]);
+                    String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, newInfo[0]);
+                    return "postLogin";
                 }
             }
             else if (params.length >= 3) {
-                facade.register(params[0], params[1], params[2]);
-                return String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
+                auth = facade.register(params[0], params[1], params[2]);
+                String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
+                return "postLogin";
             }
             else {throw new Exception("Please enter a valid username and password.");}
             return null;
