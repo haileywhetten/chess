@@ -16,7 +16,7 @@ public class PreLoginUI {
     }
 
     public void run() {
-        System.out.println(help());
+        help();
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
@@ -38,12 +38,13 @@ public class PreLoginUI {
     }
 
     public String help() {
-        return EscapeSequences.SET_TEXT_COLOR_BLUE + """
+        System.out.println( EscapeSequences.SET_TEXT_COLOR_BLUE + """
                 help - list possible commands
                 register <username> <password> <email> - register a new user
                 login <username> <password> - login an existing user
                 quit - quit chess
-                """;
+                """);
+        return "";
     }
 
     public String eval(String input) {
@@ -53,7 +54,6 @@ public class PreLoginUI {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch(cmd) {
                 case "quit" -> "quit";
-                case "help" -> help();
                 case "login" -> login(params);
                 case "register" -> register(params);
                 default -> help();
@@ -85,6 +85,7 @@ public class PreLoginUI {
             }
             else{throw new Exception("Please enter a valid username and password.");}
         } catch(Exception ex) {
+            System.out.println("Could not login; username or password invalid");
             throw new Exception("Login failed");
         }
         return null;
@@ -108,7 +109,9 @@ public class PreLoginUI {
                 String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
                 return "postLogin";
             }
-            else {throw new Exception("Please enter a valid username and password.");}
+            else {
+                System.out.println("Could not register - please use a unique username");
+                throw new Exception("Please enter a valid username and password.");}
             return null;
 
         }catch (Exception ex) {

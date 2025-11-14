@@ -83,6 +83,7 @@ public class PostLoginUI {
             System.out.printf("%sYou logged out!%n", EscapeSequences.SET_TEXT_COLOR_YELLOW);
             return "preLogin";
         } catch(Exception ex) {
+            System.out.println("Could not log out");
             throw new Exception("Logout failed");
         }
     }
@@ -106,6 +107,7 @@ public class PostLoginUI {
                 return "create";
             }
         } catch(Exception ex) {
+            System.out.println("Could not create the game");
             throw new Exception("Create game failed.");
         }
         return null;
@@ -125,6 +127,7 @@ public class PostLoginUI {
             }
             return "list";
         } catch(Exception ex) {
+            System.out.println("Could not list the games");
             throw new Exception("Could not list the games");
         }
     }
@@ -193,6 +196,7 @@ public class PostLoginUI {
             return "gameplay";
 
         } catch(Exception ex) {
+            System.out.println("Could not observe the game");
             throw new Exception("could not observe game");
         }
     }
