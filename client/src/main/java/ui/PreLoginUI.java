@@ -64,25 +64,29 @@ public class PreLoginUI {
     }
 
     public String login(String... params) throws Exception {
-        if (params.length == 0) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a username and a password to login");
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            String[] newInfo = line.toLowerCase().split(" ");
-            if (newInfo.length >= 2) {
-                var user = new UserData(newInfo[0], newInfo[1], "");
+        try {
+            if (params.length == 0) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a username and a password to login");
+                Scanner scanner = new Scanner(System.in);
+                String line = scanner.nextLine();
+                String[] newInfo = line.toLowerCase().split(" ");
+                if (newInfo.length >= 2) {
+                    var user = new UserData(newInfo[0], newInfo[1], "");
+                    auth = facade.login(user);
+                    System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, user.username());
+                    return "postLogin";
+                }
+            }
+            else if (params.length >= 2) {
+                var user = new UserData(params[0], params[1], "");
                 auth = facade.login(user);
-                System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, user.username());
+                System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
                 return "postLogin";
             }
+            else{throw new Exception("Please enter a valid username and password.");}
+        } catch(Exception ex) {
+            throw new Exception("Login failed");
         }
-        else if (params.length >= 2) {
-            var user = new UserData(params[0], params[1], "");
-            auth = facade.login(user);
-            System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
-            return "postLogin";
-        }
-        else{throw new Exception("Please enter a valid username and password.");}
         return null;
     }
 

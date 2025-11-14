@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.*;
 import serverfacade.ServerFacade;
 
@@ -11,6 +12,7 @@ public class PostLoginUI {
     private final ServerFacade facade;
     private final AuthData auth;
     private List<GameInfo> gameList = null;
+    private String gameName;
 
     public PostLoginUI(ServerFacade facade, AuthData authData) {
         this.facade = facade;
@@ -64,8 +66,8 @@ public class PostLoginUI {
                 case "help" -> help();
                 case "logout" -> logout();
                 case "create" -> createGame(params);
-                case "join" -> "join";
-                case "observe" -> "observe";
+                case "join" -> joinGame(params);
+                case "observe" -> observeGame(params);
                 case "list" -> listGames();
                 default -> help();
             };
@@ -123,6 +125,72 @@ public class PostLoginUI {
             return "list";
         } catch(Exception ex) {
             throw new Exception("Could not list the games");
+        }
+    }
+
+    public String joinGame(String... params) throws Exception {
+        try{
+            if (params.length == 0) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a game number to join and what color you want:");
+                Scanner scanner = new Scanner(System.in);
+                String line = scanner.nextLine();
+                String[] newInfo = line.toLowerCase().split(" ");
+                if (newInfo.length >= 2) {
+                    ChessGame.TeamColor color;
+                    var game = gameList.get(Integer.parseInt(newInfo[0]) - 1);
+                    int gameID = game.gameID();
+                    gameName = game.gameName();
+                    if(newInfo[1].equals("white")) {
+                        color = ChessGame.TeamColor.WHITE;
+                    }
+                    else{color = ChessGame.TeamColor.BLACK;}
+                    facade.joinGame(gameID, color, auth);
+                    System.out.printf("%sYou joined %s as %s.%n", EscapeSequences.SET_TEXT_COLOR_RED, game.gameName(), newInfo[1]);
+                    return "gameplay";
+                }
+            }
+            else if (params.length >= 2) {
+                ChessGame.TeamColor color;
+                var game = gameList.get(Integer.parseInt(params[0]) - 1);
+                gameName = game.gameName();
+                int gameID = game.gameID();
+                if(params[1].equals("white")) {
+                    color = ChessGame.TeamColor.WHITE;
+                }
+                else{color = ChessGame.TeamColor.BLACK;}
+                facade.joinGame(gameID, color, auth);
+                System.out.printf("%sYou joined %s as %s.%n", EscapeSequences.SET_TEXT_COLOR_RED, game.gameName(), params[1]);
+                return "gameplay";
+            }
+            else{throw new Exception("Please enter a valid game number and your color");}
+
+        } catch(Exception ex) {
+            throw new Exception("Could not join game");
+        }
+        return null;
+    }
+
+    public String observeGame(String... params) throws Exception {
+        try{
+            if (params.length == 0) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a game number to observe:");
+                Scanner scanner = new Scanner(System.in);
+                String line = scanner.nextLine();
+                String[] newInfo = line.toLowerCase().split(" ");
+                if(newInfo.length == 1) {
+                    gameName = gameList.get(Integer.parseInt(newInfo[0]) - 1).gameName();
+
+                }
+            }
+            else if (params.length == 1) {
+                gameName = gameList.get(Integer.parseInt(params[0]) - 1).gameName();
+            }
+            else{throw new Exception("Please enter the correct number of arguments.");}
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You are now observing " + gameName);
+            return "gameplay";
+
+        } catch(Exception ex) {
+            throw new Exception("could not observe game");
         }
     }
 }
