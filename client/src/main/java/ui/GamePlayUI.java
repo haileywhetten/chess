@@ -5,7 +5,6 @@ import chess.ChessPiece;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Random;
 
 import static ui.EscapeSequences.*;
 
@@ -16,11 +15,8 @@ public class GamePlayUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 0;
+    private static final String EMPTY = " ";
 
-    // Padded characters.
-    //private static final String EMPTY = " ";
-
-    private static Random rand = new Random();
 
     public GamePlayUI(String gameName, ChessGame.TeamColor color) {
         this.gameName = gameName;
@@ -43,14 +39,16 @@ public class GamePlayUI {
     private static void drawHeaders(PrintStream out) {
 
         setBlack(out);
+        out.print(EMPTY + " " + EMPTY);
 
-        String[] headers = { "a"+EMPTY, "b"+EMPTY, "c"+EMPTY, "d"+EMPTY, "e"+EMPTY, "f"+EMPTY, "g"+EMPTY, "h"+EMPTY };
+        String[] headers = { "a", "b", "c", "d", "e", "f", "g", "h"};
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
 
-            if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
+            /*if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
                 out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
-            }
+                out.print(EMPTY);
+            }*/
         }
 
         out.println();
@@ -60,9 +58,11 @@ public class GamePlayUI {
         int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
         int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
-        out.print(EMPTY.repeat(prefixLength));
+        //out.print(EMPTY.repeat(prefixLength));
+        out.print(EMPTY);
         printHeaderText(out, headerText);
-        out.print(EMPTY.repeat(suffixLength));
+        out.print(EMPTY);
+
     }
 
     private static void printHeaderText(PrintStream out, String player) {
@@ -89,9 +89,11 @@ public class GamePlayUI {
     }
 
     private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
-        boolean white;
+        boolean white = ((boardRow + 1) % 2 == 1);
+        int rowNumber = 8 - boardRow;
+        out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
-            white = (boardRow + 1 % 2 == 1);
+
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             //setWhite(out);
             if(white) {setYellow(out);}
@@ -102,7 +104,7 @@ public class GamePlayUI {
                 int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
                 out.print(EMPTY.repeat(prefixLength));
                 ChessGame.TeamColor pieceColor = piecesColor(boardRow + 1);
-                out.print(SET_TEXT_COLOR_BLACK + getPiece(boardRow + 1, boardCol + 1, pieceColor));
+                out.print(getPiece(boardRow + 1, boardCol + 1, pieceColor, out));
                 out.print(EMPTY.repeat(suffixLength));
             }
             else {
@@ -172,63 +174,144 @@ public class GamePlayUI {
         else {return null;}
     }
 
-    private static String getPiece(int row, int col, ChessGame.TeamColor pieceColor) {
+    /*private static String getPiece(int row, int col, ChessGame.TeamColor pieceColor) {
         var pieceType = pieceAt(row, col);
         if(pieceType == ChessPiece.PieceType.PAWN) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_PAWN;
+                return EMPTY + WHITE_PAWN + EMPTY;
             }
-            else {return BLACK_PAWN;}
+            else {return EMPTY + BLACK_PAWN + EMPTY;}
         }
         if(pieceType == ChessPiece.PieceType.ROOK) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_ROOK;
+                return EMPTY + WHITE_ROOK + EMPTY;
             }
-            else {return BLACK_ROOK;}
+            else {return EMPTY + BLACK_ROOK + EMPTY;}
         }
         if(pieceType == ChessPiece.PieceType.KNIGHT) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_KNIGHT;
+                return EMPTY + WHITE_KNIGHT + EMPTY;
             }
-            else {return BLACK_KNIGHT;}
+            else {return EMPTY + BLACK_KNIGHT + EMPTY;}
         }
         if(pieceType == ChessPiece.PieceType.BISHOP) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_BISHOP;
+                return EMPTY + WHITE_BISHOP + EMPTY;
             }
-            else {return BLACK_BISHOP;}
+            else {return EMPTY + BLACK_BISHOP + EMPTY;}
         }
         if(pieceType == ChessPiece.PieceType.KING) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_KING;
+                return EMPTY + WHITE_KING + EMPTY;
             }
-            else {return BLACK_KING;}
+            else {return EMPTY + BLACK_KING + EMPTY;}
         }
         if(pieceType == ChessPiece.PieceType.QUEEN) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return WHITE_QUEEN;
+                return EMPTY + WHITE_QUEEN + EMPTY;
             }
-            else {return BLACK_QUEEN;}
+            else {return EMPTY + BLACK_QUEEN + EMPTY;}
         }
-        else return EMPTY;
+        else return EMPTY.repeat(3);
     }
 
     //Determine what color the pieces on a row will be
     private static ChessGame.TeamColor piecesColor(int row) {
         if(color == ChessGame.TeamColor.WHITE) {
             if(row == 1 || row == 2) {
+                return ChessGame.TeamColor.BLACK;
+            }
+            else if (row == 7 || row == 8) {
+                return ChessGame.TeamColor.WHITE;
+            }
+        }
+        else if(color == ChessGame.TeamColor.BLACK) {
+            if(row == 1 || row == 2) {
                 return ChessGame.TeamColor.WHITE;
             }
             else if (row == 7 || row == 8) {
                 return ChessGame.TeamColor.BLACK;
             }
         }
-        else if(color == ChessGame.TeamColor.BLACK) {
+        return null;
+    }*/
+
+    private static void setWhite1(PrintStream out) {
+        out.print(SET_TEXT_COLOR_WHITE);
+    }
+    private static void setBlack1(PrintStream out) {
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static String getPiece(int row, int col, ChessGame.TeamColor pieceColor, PrintStream out) {
+        var pieceType = pieceAt(row, col);
+        if(pieceType == ChessPiece.PieceType.PAWN) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " p ";
+        }
+        if(pieceType == ChessPiece.PieceType.ROOK) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " r ";
+        }
+        if(pieceType == ChessPiece.PieceType.KNIGHT) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " n ";
+        }
+        if(pieceType == ChessPiece.PieceType.BISHOP) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " b ";
+        }
+        if(pieceType == ChessPiece.PieceType.KING) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " k ";
+        }
+        if(pieceType == ChessPiece.PieceType.QUEEN) {
+            if(pieceColor == ChessGame.TeamColor.WHITE) {
+                setWhite1(out);
+            }
+            else {setBlack1(out);
+            }
+            return " q ";
+        }
+        else return EMPTY.repeat(3);
+    }
+
+    //Determine what color the pieces on a row will be
+    private static ChessGame.TeamColor piecesColor(int row) {
+        if(color == ChessGame.TeamColor.WHITE) {
             if(row == 1 || row == 2) {
                 return ChessGame.TeamColor.BLACK;
             }
             else if (row == 7 || row == 8) {
                 return ChessGame.TeamColor.WHITE;
+            }
+        }
+        else if(color == ChessGame.TeamColor.BLACK) {
+            if(row == 1 || row == 2) {
+                return ChessGame.TeamColor.WHITE;
+            }
+            else if (row == 7 || row == 8) {
+                return ChessGame.TeamColor.BLACK;
             }
         }
         return null;
