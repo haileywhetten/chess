@@ -33,7 +33,6 @@ public class PostLoginUI {
                     new PreLoginUI(facade).run();
                 }
                 if(result.equals("gameplay")) {
-                    System.out.println("this is where the gameplay ui will go");
                     new GamePlayUI(gameName, color).run();
                 }
             } catch (Throwable ex) {
@@ -165,7 +164,9 @@ public class PostLoginUI {
             else{throw new Exception("Please enter a valid game number and your color");}
 
         } catch(Exception ex) {
+            System.out.println("Error joining game - that team is already taken");
             throw new Exception("Could not join game");
+
         }
         return null;
     }
