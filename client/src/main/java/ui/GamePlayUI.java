@@ -14,7 +14,6 @@ public class GamePlayUI {
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
-    private static final int LINE_WIDTH_IN_PADDED_CHARS = 0;
     private static final String EMPTY = " ";
 
 
@@ -44,21 +43,12 @@ public class GamePlayUI {
         String[] headers = { "a", "b", "c", "d", "e", "f", "g", "h"};
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
-
-            /*if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
-                out.print(EMPTY);
-            }*/
         }
 
         out.println();
     }
 
     private static void drawHeader(PrintStream out, String headerText) {
-        int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-        int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
-
-        //out.print(EMPTY.repeat(prefixLength));
         out.print(EMPTY);
         printHeaderText(out, headerText);
         out.print(EMPTY);
@@ -81,8 +71,6 @@ public class GamePlayUI {
             drawOneRowOfSquares(out, boardRow);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                // Draw horizontal row separator.
-                //drawHorizontalLine(out);
                 setBlack(out);
             }
         }
@@ -95,7 +83,6 @@ public class GamePlayUI {
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            //setWhite(out);
             if(white) {setYellow(out);}
             else {setBlue(out);}
 
@@ -131,19 +118,9 @@ public class GamePlayUI {
 
     private static void setYellow(PrintStream out) {
         out.print(SET_BG_COLOR_YELLOW);
-        //out.print(SET_TEXT_COLOR_YELLOW);
     }
     private static void setBlue(PrintStream out) {
         out.print(SET_BG_COLOR_BLUE);
-    }
-
-    private static void printPlayer(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
-
-        out.print(player);
-
-        setWhite(out);
     }
 
     private static ChessPiece.PieceType pieceAt(int row, int col) {
@@ -173,68 +150,6 @@ public class GamePlayUI {
         }
         else {return null;}
     }
-
-    /*private static String getPiece(int row, int col, ChessGame.TeamColor pieceColor) {
-        var pieceType = pieceAt(row, col);
-        if(pieceType == ChessPiece.PieceType.PAWN) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_PAWN + EMPTY;
-            }
-            else {return EMPTY + BLACK_PAWN + EMPTY;}
-        }
-        if(pieceType == ChessPiece.PieceType.ROOK) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_ROOK + EMPTY;
-            }
-            else {return EMPTY + BLACK_ROOK + EMPTY;}
-        }
-        if(pieceType == ChessPiece.PieceType.KNIGHT) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_KNIGHT + EMPTY;
-            }
-            else {return EMPTY + BLACK_KNIGHT + EMPTY;}
-        }
-        if(pieceType == ChessPiece.PieceType.BISHOP) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_BISHOP + EMPTY;
-            }
-            else {return EMPTY + BLACK_BISHOP + EMPTY;}
-        }
-        if(pieceType == ChessPiece.PieceType.KING) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_KING + EMPTY;
-            }
-            else {return EMPTY + BLACK_KING + EMPTY;}
-        }
-        if(pieceType == ChessPiece.PieceType.QUEEN) {
-            if(pieceColor == ChessGame.TeamColor.WHITE) {
-                return EMPTY + WHITE_QUEEN + EMPTY;
-            }
-            else {return EMPTY + BLACK_QUEEN + EMPTY;}
-        }
-        else return EMPTY.repeat(3);
-    }
-
-    //Determine what color the pieces on a row will be
-    private static ChessGame.TeamColor piecesColor(int row) {
-        if(color == ChessGame.TeamColor.WHITE) {
-            if(row == 1 || row == 2) {
-                return ChessGame.TeamColor.BLACK;
-            }
-            else if (row == 7 || row == 8) {
-                return ChessGame.TeamColor.WHITE;
-            }
-        }
-        else if(color == ChessGame.TeamColor.BLACK) {
-            if(row == 1 || row == 2) {
-                return ChessGame.TeamColor.WHITE;
-            }
-            else if (row == 7 || row == 8) {
-                return ChessGame.TeamColor.BLACK;
-            }
-        }
-        return null;
-    }*/
 
     private static void setWhite1(PrintStream out) {
         out.print(SET_TEXT_COLOR_WHITE);
@@ -293,7 +208,7 @@ public class GamePlayUI {
             }
             return " q ";
         }
-        else return EMPTY.repeat(3);
+        else {return EMPTY.repeat(3);}
     }
 
     //Determine what color the pieces on a row will be

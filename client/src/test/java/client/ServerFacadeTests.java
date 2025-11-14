@@ -47,6 +47,11 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void deleteBad() throws Exception {
+        assertDoesNotThrow(() -> facade.delete());
+    }
+
+    @Test
     public void register() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
         assertTrue(authData.authToken().length() > 10);
@@ -138,5 +143,6 @@ public class ServerFacadeTests {
         assertTrue(facade.listGames(authData).isEmpty());
 
     }
+
 
 }
