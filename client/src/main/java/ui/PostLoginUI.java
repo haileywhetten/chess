@@ -33,6 +33,7 @@ public class PostLoginUI {
                 }
                 if(result.equals("gameplay")) {
                     System.out.println("this is where the gameplay ui will go");
+                    new GamePlayUI(gameName).run();
                 }
             } catch (Throwable ex) {
                 var msg = ex.toString();
