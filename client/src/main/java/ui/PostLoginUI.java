@@ -13,6 +13,7 @@ public class PostLoginUI {
     private final AuthData auth;
     private List<GameInfo> gameList = null;
     private String gameName;
+    private ChessGame.TeamColor color;
 
     public PostLoginUI(ServerFacade facade, AuthData authData) {
         this.facade = facade;
@@ -33,7 +34,7 @@ public class PostLoginUI {
                 }
                 if(result.equals("gameplay")) {
                     System.out.println("this is where the gameplay ui will go");
-                    new GamePlayUI(gameName).run();
+                    new GamePlayUI(gameName, color).run();
                 }
             } catch (Throwable ex) {
                 var msg = ex.toString();
@@ -137,7 +138,6 @@ public class PostLoginUI {
                 String line = scanner.nextLine();
                 String[] newInfo = line.toLowerCase().split(" ");
                 if (newInfo.length >= 2) {
-                    ChessGame.TeamColor color;
                     var game = gameList.get(Integer.parseInt(newInfo[0]) - 1);
                     int gameID = game.gameID();
                     gameName = game.gameName();
@@ -151,7 +151,6 @@ public class PostLoginUI {
                 }
             }
             else if (params.length >= 2) {
-                ChessGame.TeamColor color;
                 var game = gameList.get(Integer.parseInt(params[0]) - 1);
                 gameName = game.gameName();
                 int gameID = game.gameID();
@@ -180,11 +179,13 @@ public class PostLoginUI {
                 String[] newInfo = line.toLowerCase().split(" ");
                 if(newInfo.length == 1) {
                     gameName = gameList.get(Integer.parseInt(newInfo[0]) - 1).gameName();
+                    color = ChessGame.TeamColor.WHITE;
 
                 }
             }
             else if (params.length == 1) {
                 gameName = gameList.get(Integer.parseInt(params[0]) - 1).gameName();
+                color = ChessGame.TeamColor.WHITE;
             }
             else{throw new Exception("Please enter the correct number of arguments.");}
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You are now observing " + gameName);
