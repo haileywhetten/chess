@@ -1,3 +1,5 @@
+package client;
+
 import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
