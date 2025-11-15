@@ -29,11 +29,11 @@ public class PostLoginUI {
 
             try {
                 result = eval(line);
-                if(result.equals("preLogin")) {
-                    new PreLoginUI(facade).run();
-                }
                 if(result.equals("gameplay")) {
                     new GamePlayUI(gameName, color).run();
+                }
+                if(result.equals("preLogin")) {
+                    return "";
                 }
             } catch (Throwable ex) {
                 var msg = ex.toString();
@@ -46,7 +46,7 @@ public class PostLoginUI {
     }
 
     public String help() {
-        return EscapeSequences.SET_TEXT_COLOR_BLUE + """
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + """
                 help - list possible commands
                 logout - when you're done playing
                 create <name> - create a new game
@@ -54,7 +54,8 @@ public class PostLoginUI {
                 observe <ID> - observe a game
                 list - list all the games
                 quit - quit chess
-                """;
+                """);
+        return "";
     }
 
     public String eval(String input) {
@@ -114,7 +115,23 @@ public class PostLoginUI {
             else {
                 System.out.printf("%sHere is the list of games: %n", EscapeSequences.SET_TEXT_COLOR_RED);
                 for (GameInfo game : gameList) {
-                    System.out.printf("%s%d - %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, gameList.indexOf(game) + 1, game.gameName());
+                    if(game.whiteUsername() != null && game.blackUsername() != null) {
+                        System.out.printf("%s%d - %s --- White: %s Black: %s %n", EscapeSequences.SET_TEXT_COLOR_BLUE,
+                                gameList.indexOf(game) + 1, game.gameName(), game.whiteUsername(), game.blackUsername());
+                    }
+                    else if (game.whiteUsername() != null) {
+                        System.out.printf("%s%d - %s --- White: %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE,
+                                gameList.indexOf(game) + 1, game.gameName(), game.whiteUsername());
+                    }
+                    else if (game.blackUsername() != null) {
+                        System.out.printf("%s%d - %s --- Black: %s %n", EscapeSequences.SET_TEXT_COLOR_BLUE,
+                                gameList.indexOf(game) + 1, game.gameName(), game.blackUsername());
+                    }
+                    else {
+                        System.out.printf("%s%d - %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE,
+                                gameList.indexOf(game) + 1, game.gameName());
+                    }
+
                 }
             }
             return "list";
@@ -156,6 +173,7 @@ public class PostLoginUI {
         try{
             if (params.length == 0) {
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
+                return "";
             }
             else if (params.length == 1) {
                 gameName = gameList.get(Integer.parseInt(params[0]) - 1).gameName();

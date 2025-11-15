@@ -40,7 +40,10 @@ public class GamePlayUI {
         setBlack(out);
         out.print(EMPTY + " " + EMPTY);
 
-        String[] headers = { "a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] headers;
+        if(color == ChessGame.TeamColor.WHITE) {headers = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
+        }
+        else {headers = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};}
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
         }
@@ -78,7 +81,9 @@ public class GamePlayUI {
 
     private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
         boolean white = ((boardRow + 1) % 2 == 1);
-        int rowNumber = 8 - boardRow;
+        int rowNumber;
+        if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
+        else {rowNumber = boardRow + 1;}
         out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
 
