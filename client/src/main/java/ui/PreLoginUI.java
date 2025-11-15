@@ -66,55 +66,41 @@ public class PreLoginUI {
     public String login(String... params) throws Exception {
         try {
             if (params.length == 0) {
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a username and a password to login");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                String[] newInfo = line.toLowerCase().split(" ");
-                if (newInfo.length >= 2) {
-                    var user = new UserData(newInfo[0], newInfo[1], "");
-                    auth = facade.login(user);
-                    System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, user.username());
-                    return "postLogin";
-                }
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
-            else if (params.length >= 2) {
+            else if (params.length == 2) {
                 var user = new UserData(params[0], params[1], "");
                 auth = facade.login(user);
                 System.out.printf("%sYou logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
                 return "postLogin";
             }
-            else{throw new Exception("Please enter a valid username and password.");}
+            else{
+                System.out.println("Too many parameters");
+                return "";}
         } catch(Exception ex) {
             System.out.println("Could not login; username or password invalid");
             throw new Exception("Login failed");
         }
-        return null;
+        return "";
     }
 
     public String register(String... params) throws Exception {
         try{
             if (params.length == 0) {
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a username, password, and email to register");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                String[] newInfo = line.toLowerCase().split(" ");
-                if (newInfo.length == 3) {
-                    auth = facade.register(newInfo[0], newInfo[1], newInfo[2]);
-                    String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, newInfo[0]);
-                    return "postLogin";
-                }
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
-            else if (params.length >= 3) {
+            else if (params.length == 3) {
                 auth = facade.register(params[0], params[1], params[2]);
                 String.format("%sYou registered and logged in as %s.%n", EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, params[0]);
                 return "postLogin";
             }
             else {
-                System.out.println("Could not register - please use a unique username");
-                throw new Exception("Please enter a valid username and password.");}
-            return null;
+                System.out.println("Too many parameters.");
+                return "";}
+            return "";
 
         }catch (Exception ex) {
+            System.out.println("Could not register - please use a unique username");
             throw new Exception("Invalid register\n");
         }
     }

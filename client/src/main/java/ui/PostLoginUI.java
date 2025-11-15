@@ -91,20 +91,12 @@ public class PostLoginUI {
     public String createGame(String... params) throws Exception {
         try{
             if (params.length == 0) {
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a name to call your game:");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                String[] newInfo = line.toLowerCase().split(" ");
-                if (newInfo.length >= 1) {
-                    facade.createGame(newInfo[0], auth);
-                    System.out.printf("%sYou successfully created the game %s.%n", EscapeSequences.SET_TEXT_COLOR_MAGENTA, newInfo[0]);
-                    return "create";
-                }
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
             else {
                 facade.createGame(params[0], auth);
                 System.out.printf("%sYou successfully created the game %s.%n", EscapeSequences.SET_TEXT_COLOR_MAGENTA, params[0]);
-                return "create";
+                return "";
             }
         } catch(Exception ex) {
             System.out.println("Could not create the game");
@@ -135,24 +127,9 @@ public class PostLoginUI {
     public String joinGame(String... params) throws Exception {
         try{
             if (params.length == 0) {
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a game number to join and what color you want:");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                String[] newInfo = line.toLowerCase().split(" ");
-                if (newInfo.length >= 2) {
-                    var game = gameList.get(Integer.parseInt(newInfo[0]) - 1);
-                    int gameID = game.gameID();
-                    gameName = game.gameName();
-                    if(newInfo[1].equals("white")) {
-                        color = ChessGame.TeamColor.WHITE;
-                    }
-                    else{color = ChessGame.TeamColor.BLACK;}
-                    facade.joinGame(gameID, color, auth);
-                    System.out.printf("%sYou joined %s as %s.%n", EscapeSequences.SET_TEXT_COLOR_RED, game.gameName(), newInfo[1]);
-                    return "gameplay";
-                }
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
-            else if (params.length >= 2) {
+            else if (params.length == 2) {
                 var game = gameList.get(Integer.parseInt(params[0]) - 1);
                 gameName = game.gameName();
                 int gameID = game.gameID();
@@ -164,34 +141,28 @@ public class PostLoginUI {
                 System.out.printf("%sYou joined %s as %s.%n", EscapeSequences.SET_TEXT_COLOR_RED, game.gameName(), params[1]);
                 return "gameplay";
             }
-            else{throw new Exception("Please enter a valid game number and your color");}
+            else{System.out.println("Too many parameters");
+            return "";}
 
         } catch(Exception ex) {
-            System.out.println("Error joining game - that team is already taken");
+            System.out.println("Error joining game - that team is already taken or you need to list the games first");
             throw new Exception("Could not join game");
 
         }
-        return null;
+        return "";
     }
 
     public String observeGame(String... params) throws Exception {
         try{
             if (params.length == 0) {
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Please enter a game number to observe:");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                String[] newInfo = line.toLowerCase().split(" ");
-                if(newInfo.length == 1) {
-                    gameName = gameList.get(Integer.parseInt(newInfo[0]) - 1).gameName();
-                    color = ChessGame.TeamColor.WHITE;
-
-                }
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
             else if (params.length == 1) {
                 gameName = gameList.get(Integer.parseInt(params[0]) - 1).gameName();
                 color = ChessGame.TeamColor.WHITE;
             }
-            else{throw new Exception("Please enter the correct number of arguments.");}
+            else{System.out.println("Too many parameters");
+            return "";}
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You are now observing " + gameName);
             return "gameplay";
 

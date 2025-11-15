@@ -112,10 +112,10 @@ public class GamePlayUI {
     }
 
     private static void setYellow(PrintStream out) {
-        out.print(SET_BG_COLOR_YELLOW);
+        out.print(SET_BG_COLOR_LIGHT_GREY);
     }
     private static void setBlue(PrintStream out) {
-        out.print(SET_BG_COLOR_BLUE);
+        out.print(SET_BG_COLOR_DARK_GREEN);
     }
 
     private static ChessPiece.PieceType pieceAt(int row, int col) {
