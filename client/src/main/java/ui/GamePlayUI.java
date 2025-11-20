@@ -5,6 +5,8 @@ import chess.ChessPiece;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
@@ -33,6 +35,50 @@ public class GamePlayUI {
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+        help(out);
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        while (!result.equals("leave")) {
+            String line = scanner.nextLine();
+
+            try {
+                result = eval(line, out);
+
+            } catch (Throwable e) {
+                var msg = e.toString();
+                out.print(msg);
+            }
+        }
+    }
+
+    public String help(PrintStream out) {
+        out.println(SET_TEXT_COLOR_BLUE + """
+                help - list possible commands
+                redraw - redraw current chess board
+                leave - leave the game
+                move <move> - make a move
+                resign - resign from the game
+                highlight - highlight all legal moves of once piece
+                """ + SET_TEXT_COLOR_WHITE);
+        return "";
+    }
+
+    public String eval(String input, PrintStream out) {
+        try{
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch(cmd) {
+                case "leave" -> "leave";
+                case "redraw" -> "redraw";
+                case "move" -> "move";
+                case "resign" -> "resign";
+                case "highlight" -> "highlight";
+                default -> help(out);
+            };
+        } catch (Exception ex) {
+            return ex.getMessage();
+        }
     }
 
     private static void drawHeaders(PrintStream out) {
