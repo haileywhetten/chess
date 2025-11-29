@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 
@@ -126,6 +127,9 @@ public class GamePlayUI {
     }
 
     private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
+        ChessGame game = new ChessGame();
+        ChessBoard board = game.getBoard();
+
         boolean white = ((boardRow + 1) % 2 == 1);
         int rowNumber;
         if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
@@ -166,7 +170,7 @@ public class GamePlayUI {
         out.print(SET_BG_COLOR_LIGHT_GREY);
     }
     private static void setBlue(PrintStream out) {
-        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_BG_COLOR_BLUE);
     }
 
     private static ChessPiece.PieceType pieceAt(int row, int col) {
