@@ -52,10 +52,10 @@ public class GamePlayUI {
                 out.print(msg);
             }
         }
-        help(out);
+        out.println(SET_TEXT_COLOR_RED + "You have left the game.");
     }
 
-    public String help(PrintStream out) {
+    public static String help(PrintStream out) {
         //TODO: Alternate menu for an observer
         if(!observer) {
             out.println(SET_TEXT_COLOR_BLUE + """
@@ -86,9 +86,9 @@ public class GamePlayUI {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch(cmd) {
                 case "leave" -> "leave";
-                case "redraw" -> "redraw";
+                case "redraw" -> redraw(out);
                 case "move" -> move(params);
-                case "resign" -> "resign";
+                case "resign" -> resign(out);
                 case "highlight" -> highlight(params);
                 default -> help(out);
             };
@@ -275,7 +275,6 @@ public class GamePlayUI {
             }
             else if (params.length == 1) {
                 ChessMove move = getMove(params[0]);
-                //TODO: Pawn promotion piece
                 game.makeMove(move);
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
@@ -304,7 +303,7 @@ public class GamePlayUI {
         ChessPosition start = new ChessPosition(row1, col1);
         ChessPosition end = new ChessPosition(row2, col2);
         boolean endOfBoardPawn = false;
-        if((color == ChessGame.TeamColor.WHITE && row2 == 8) || (color == ChessGame.TeamColor.BLACK || row2 == 1)) {
+        if((color == ChessGame.TeamColor.WHITE && row2 == 8) || (color == ChessGame.TeamColor.BLACK && row2 == 1)) {
             endOfBoardPawn = true;
         }
         if((board.getPiece(start).getPieceType() == ChessPiece.PieceType.PAWN) && (endOfBoardPawn)) {
@@ -346,8 +345,8 @@ public class GamePlayUI {
                 System.out.println(SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
             else if (params.length == 1) {
-                drawHeaders(out);
                 ChessPosition startPosition = getStartingPosition(params[0]);
+                drawHeaders(out);
                 for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
                     boolean white = ((boardRow + 1) % 2 == 1);
@@ -364,6 +363,7 @@ public class GamePlayUI {
                             }
                             else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
                             Collection<ChessPosition> squares = squaresToHighlight(game.validMoves(startPosition));
+                            squares.add(startPosition);
                             if(!squares.contains(endPosition)) {
                                 if(white) {setYellow(out);}
                                 else {setBlue(out);}
@@ -409,7 +409,7 @@ public class GamePlayUI {
         return "";
     }
 
-    private static ChessPosition getStartingPosition(String positionString) throws Exception{
+    private static ChessPosition getStartingPosition(String positionString) throws Exception {
         if(!positionString.matches("^[a-h][1-8]$")) {
             throw new Exception();
         }
@@ -424,5 +424,28 @@ public class GamePlayUI {
             squares.add(move.getEndPosition());
         }
         return squares;
+    }
+
+    private static String resign(PrintStream out) {
+        out.println(SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? Resigning results in a forfeit.");
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine().toLowerCase();
+        if(line.equals("yes")) {
+            drawHeaders(out);
+            drawChessBoard(out);
+            out.println("You have resigned.");
+        } else if (line.equals("no")) {
+            out.println("You did not resign.");
+        }
+        else {
+            out.println("Invalid input. Try again");
+        }
+        help(out);
+        return"";
+    }
+    private static String redraw(PrintStream out) {
+        drawHeaders(out);
+        drawChessBoard(out);
+        return "";
     }
 }

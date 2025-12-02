@@ -31,9 +31,11 @@ public class PostLoginUI {
                 result = eval(line);
                 if(result.equals("gameplay")) {
                     new GamePlayUI(gameName, color, false).run();
+                    help();
                 }
                 if(result.equals("observer")) {
                     new GamePlayUI(gameName, color, true).run();
+                    help();
                 }
                 if(result.equals("preLogin")) {
                     return "";
