@@ -1,9 +1,7 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+import model.UserData;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +17,8 @@ public class GamePlayUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
     private static final String EMPTY = " ";
+    static ChessGame game = new ChessGame();
+    static ChessBoard board = game.getBoard();
 
 
     public GamePlayUI(String gameName, ChessGame.TeamColor color) {
@@ -55,6 +55,7 @@ public class GamePlayUI {
     }
 
     public String help(PrintStream out) {
+        //TODO: Alternate menu for an observer
         out.println(SET_TEXT_COLOR_BLUE + """
                 help - list possible commands
                 redraw - redraw current chess board
@@ -74,7 +75,7 @@ public class GamePlayUI {
             return switch(cmd) {
                 case "leave" -> "leave";
                 case "redraw" -> "redraw";
-                case "move" -> "move";
+                case "move" -> move(params);
                 case "resign" -> "resign";
                 case "highlight" -> "highlight";
                 default -> help(out);
@@ -133,8 +134,6 @@ public class GamePlayUI {
     }
 
     private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
-        ChessGame game = new ChessGame();
-        ChessBoard board = game.getBoard();
 
         boolean white = ((boardRow + 1) % 2 == 1);
         int rowNumber;
@@ -151,7 +150,6 @@ public class GamePlayUI {
                 int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
                 int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
                 out.print(EMPTY.repeat(prefixLength));
-                ChessGame.TeamColor pieceColor = piecesColor(boardRow + 1);
                 out.print(getPiece(boardRow + 1, boardCol + 1, out, board));
                 out.print(EMPTY.repeat(suffixLength));
             }
@@ -255,24 +253,41 @@ public class GamePlayUI {
         else {return EMPTY.repeat(3);}
     }
 
-    //Determine what color the pieces on a row will be
-    private static ChessGame.TeamColor piecesColor(int row) {
-        if(color == ChessGame.TeamColor.WHITE) {
-            if(row == 1 || row == 2) {
-                return ChessGame.TeamColor.BLACK;
+    private static String move(String[] params) {
+        try {
+            //TODO: Make sure this is not an observer using boolean
+            if (params.length == 0) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
-            else if (row == 7 || row == 8) {
-                return ChessGame.TeamColor.WHITE;
+            else if (params.length == 1) {
+                ChessMove move = getMove(params[0]);
+                //TODO: Pawn promotion piece
+                game.makeMove(move);
+                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+                drawHeaders(out);
+                drawChessBoard(out);
             }
+            else{
+                System.out.println("Too many parameters");
+                }
+
+        } catch(Exception ex) {
+            System.out.println("Please try again. Enter a valid move.");
         }
-        else if(color == ChessGame.TeamColor.BLACK) {
-            if(row == 1 || row == 2) {
-                return ChessGame.TeamColor.WHITE;
-            }
-            else if (row == 7 || row == 8) {
-                return ChessGame.TeamColor.BLACK;
-            }
+        return "";
+    }
+
+    private static ChessMove getMove(String moveString) throws Exception {
+        if(!moveString.matches("^[a-h][1-8]:[a-h][1-8]$")) {
+            throw new Exception();
         }
-        return null;
+        String[] tokens = moveString.toLowerCase().split(":");
+        int col1 = tokens[0].charAt(0) - 'a' + 1;
+        int row1 = tokens[0].charAt(1) - '0' + 1;
+        int col2 = tokens[1].charAt(0) - 'a' + 1;
+        int row2 = tokens[1].charAt(1) - '0' + 1;
+        //TODO: Pawn promotion piece
+        return new ChessMove(new ChessPosition(row1, col1), new ChessPosition(row2, col2), null);
+
     }
 }
