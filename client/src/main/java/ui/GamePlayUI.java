@@ -301,7 +301,41 @@ public class GamePlayUI {
         int col2 = tokens[1].charAt(0) - 'a' + 1;
         int row2 = tokens[1].charAt(1) - '0';
         //TODO: Pawn promotion piece
-        return new ChessMove(new ChessPosition(row1, col1), new ChessPosition(row2, col2), null);
+        ChessPosition start = new ChessPosition(row1, col1);
+        ChessPosition end = new ChessPosition(row2, col2);
+        boolean endOfBoardPawn = false;
+        if((color == ChessGame.TeamColor.WHITE && row2 == 8) || (color == ChessGame.TeamColor.BLACK || row2 == 1)) {
+            endOfBoardPawn = true;
+        }
+        if((board.getPiece(start).getPieceType() == ChessPiece.PieceType.PAWN) && (endOfBoardPawn)) {
+            System.out.println("Your pawn is being promoted! What would you like to promote it to? <ROOK|KNIGHT|BISHOP|QUEEN>");
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine().toLowerCase();
+            boolean finished = false;
+            while(!finished) {
+                switch (line) {
+                    case "bishop" -> {
+                        return new ChessMove(start, end, ChessPiece.PieceType.BISHOP);
+                    }
+                    case "rook" -> {
+                        return new ChessMove(start, end, ChessPiece.PieceType.ROOK);
+                    }
+                    case "knight" -> {
+                        return new ChessMove(start, end, ChessPiece.PieceType.KNIGHT);
+                    }
+                    case "queen" -> {
+                        return new ChessMove(start, end, ChessPiece.PieceType.QUEEN);
+                    }
+                    default -> System.out.println("Please enter a valid piece type.");
+                }
+            }
+
+
+        }
+        else {
+            return new ChessMove(start, end, null);
+        }
+        return null;
 
     }
 
@@ -328,7 +362,7 @@ public class GamePlayUI {
                             if(color == ChessGame.TeamColor.BLACK) {
                                 endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
                             }
-                            else {endPosition = new ChessPosition(boardRow + 1, boardCol + 1);}
+                            else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
                             Collection<ChessPosition> squares = squaresToHighlight(game.validMoves(startPosition));
                             if(!squares.contains(endPosition)) {
                                 if(white) {setYellow(out);}
