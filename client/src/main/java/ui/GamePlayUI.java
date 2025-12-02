@@ -5,11 +5,7 @@ import model.UserData;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -22,11 +18,13 @@ public class GamePlayUI {
     private static final String EMPTY = " ";
     static ChessGame game = new ChessGame();
     static ChessBoard board = game.getBoard();
+    private static boolean observer;
 
 
-    public GamePlayUI(String gameName, ChessGame.TeamColor color) {
+    public GamePlayUI(String gameName, ChessGame.TeamColor color, boolean observer) {
         this.gameName = gameName;
         GamePlayUI.color = color;
+        GamePlayUI.observer = observer;
     }
 
     public void run() {
@@ -59,7 +57,8 @@ public class GamePlayUI {
 
     public String help(PrintStream out) {
         //TODO: Alternate menu for an observer
-        out.println(SET_TEXT_COLOR_BLUE + """
+        if(!observer) {
+            out.println(SET_TEXT_COLOR_BLUE + """
                 help - list possible commands
                 redraw - redraw current chess board
                 leave - leave the game
@@ -67,6 +66,16 @@ public class GamePlayUI {
                 resign - resign from the game
                 highlight - highlight all legal moves of once piece
                 """ + SET_TEXT_COLOR_WHITE);
+        } else {
+            out.println(SET_TEXT_COLOR_BLUE + """
+                help - list possible commands
+                redraw - redraw current chess board
+                leave - leave the game
+                resign - resign from the game
+                highlight - highlight all legal moves of once piece
+                """ + SET_TEXT_COLOR_WHITE);
+        }
+
         return "";
     }
 
@@ -257,8 +266,10 @@ public class GamePlayUI {
     }
 
     private static String move(String[] params) {
+        if(observer) {
+            System.out.println("You are an observer and cannot move.");
+            return "b";}
         try {
-            //TODO: Make sure this is not an observer using boolean
             if (params.length == 0) {
                 System.out.println(SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
@@ -374,7 +385,7 @@ public class GamePlayUI {
     }
 
     private static Collection<ChessPosition> squaresToHighlight(Collection<ChessMove> moves) {
-        List<ChessPosition> squares = new java.util.ArrayList<>(List.of());
+        List<ChessPosition> squares = new ArrayList<>(List.of());
         for(ChessMove move : moves) {
             squares.add(move.getEndPosition());
         }

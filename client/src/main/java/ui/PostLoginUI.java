@@ -30,7 +30,10 @@ public class PostLoginUI {
             try {
                 result = eval(line);
                 if(result.equals("gameplay")) {
-                    new GamePlayUI(gameName, color).run();
+                    new GamePlayUI(gameName, color, false).run();
+                }
+                if(result.equals("observer")) {
+                    new GamePlayUI(gameName, color, true).run();
                 }
                 if(result.equals("preLogin")) {
                     return "";
@@ -182,7 +185,7 @@ public class PostLoginUI {
             else{System.out.println("Too many parameters");
             return "";}
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You are now observing " + gameName);
-            return "gameplay";
+            return "observer";
 
         } catch(Exception ex) {
             System.out.println("Could not observe the game");
