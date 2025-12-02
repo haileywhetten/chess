@@ -305,11 +305,10 @@ public class GamePlayUI {
             endOfBoardPawn = true;
         }
         if((board.getPiece(start).getPieceType() == ChessPiece.PieceType.PAWN) && (endOfBoardPawn)) {
-            System.out.println("Your pawn is being promoted! What would you like to promote it to? <ROOK|KNIGHT|BISHOP|QUEEN>");
+            System.out.println(SET_BG_COLOR_WHITE + "Your pawn is being promoted! What would you like to promote it to? <ROOK|KNIGHT|BISHOP|QUEEN>");
+            System.out.print(RESET_BG_COLOR);
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine().toLowerCase();
-            boolean finished = false;
-            while(!finished) {
                 switch (line) {
                     case "bishop" -> {
                         return new ChessMove(start, end, ChessPiece.PieceType.BISHOP);
@@ -324,7 +323,6 @@ public class GamePlayUI {
                         return new ChessMove(start, end, ChessPiece.PieceType.QUEEN);
                     }
                     default -> System.out.println("Please enter a valid piece type.");
-                }
             }
 
 
@@ -434,7 +432,7 @@ public class GamePlayUI {
         if(line.equals("yes")) {
             drawHeaders(out);
             drawChessBoard(out);
-            out.println("You have resigned.");
+            out.println("You have resigned. Type leave to leave the game.");
         } else if (line.equals("no")) {
             out.println("You did not resign.");
         }
