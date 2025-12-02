@@ -3,6 +3,7 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,7 @@ public class GamePlayUI {
                 out.print(msg);
             }
         }
+        help(out);
     }
 
     public String help(PrintStream out) {
@@ -94,8 +96,11 @@ public class GamePlayUI {
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
         }
-
+        out.print(RESET_BG_COLOR);
         out.println();
+        setBlack(out);
+        out.print(SET_TEXT_COLOR_GREEN);
+
     }
 
     private static void drawHeader(PrintStream out, String headerText) {
@@ -124,6 +129,7 @@ public class GamePlayUI {
                 setBlack(out);
             }
         }
+        out.println(RESET_BG_COLOR);
     }
 
     private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
@@ -146,7 +152,7 @@ public class GamePlayUI {
                 int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
                 out.print(EMPTY.repeat(prefixLength));
                 ChessGame.TeamColor pieceColor = piecesColor(boardRow + 1);
-                out.print(getPiece(boardRow + 1, boardCol + 1, pieceColor, out));
+                out.print(getPiece(boardRow + 1, boardCol + 1, out, board));
                 out.print(EMPTY.repeat(suffixLength));
             }
             else {
@@ -157,7 +163,7 @@ public class GamePlayUI {
             white = !white;
         }
 
-        out.println();
+        out.println(RESET_BG_COLOR);
         }
     }
 
@@ -173,32 +179,9 @@ public class GamePlayUI {
         out.print(SET_BG_COLOR_BLUE);
     }
 
-    private static ChessPiece.PieceType pieceAt(int row, int col) {
-        if(row == 2 || row == 7) {
-            return ChessPiece.PieceType.PAWN;
-        }
-        else if ((row == 1 || row == 8) && (col == 1 || col == 8)) {
-            return ChessPiece.PieceType.ROOK;
-        }
-        else if ((row == 1 || row == 8) && (col == 2 || col == 7)) {
-            return ChessPiece.PieceType.KNIGHT;
-        }
-        else if ((row == 1 || row == 8) && (col == 3 || col == 6)) {
-            return ChessPiece.PieceType.BISHOP;
-        }
-        else if ((row == 1 || row == 8) && (color.equals(ChessGame.TeamColor.WHITE) && col == 4)) {
-            return ChessPiece.PieceType.QUEEN;
-        }
-        else if ((row == 1 || row == 8) && (color.equals(ChessGame.TeamColor.WHITE) && col == 5)) {
-            return ChessPiece.PieceType.KING;
-        }
-        else if ((row == 1 || row == 8) && (color.equals(ChessGame.TeamColor.BLACK) && col == 4)) {
-            return ChessPiece.PieceType.KING;
-        }
-        else if ((row == 1 || row == 8) && (color.equals(ChessGame.TeamColor.BLACK) && col == 5)) {
-            return ChessPiece.PieceType.QUEEN;
-        }
-        else {return null;}
+    private static ChessPiece pieceAt(int row, int col, ChessBoard chessBoard) {
+        var position = new ChessPosition(row, col);
+        return chessBoard.getPiece(position);
     }
 
     private static void setWhite1(PrintStream out) {
@@ -208,8 +191,19 @@ public class GamePlayUI {
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
-    private static String getPiece(int row, int col, ChessGame.TeamColor pieceColor, PrintStream out) {
-        var pieceType = pieceAt(row, col);
+    private static String getPiece(int row, int col, PrintStream out, ChessBoard chessBoard) {
+        ChessPiece piece;
+        if(color == ChessGame.TeamColor.WHITE) {
+            piece = pieceAt(9 - row, col, chessBoard);
+        }
+        else {
+            piece = pieceAt(row, 9 - col, chessBoard);
+        }
+        if(piece == null) {
+            return "   ";
+        }
+        var pieceColor = piece.getTeamColor();
+        var pieceType = piece.getPieceType();
         if(pieceType == ChessPiece.PieceType.PAWN) {
             if(pieceColor == ChessGame.TeamColor.WHITE) {
                 setWhite1(out);
