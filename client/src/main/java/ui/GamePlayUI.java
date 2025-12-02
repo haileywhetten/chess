@@ -71,7 +71,6 @@ public class GamePlayUI {
                 help - list possible commands
                 redraw - redraw current chess board
                 leave - leave the game
-                resign - resign from the game
                 highlight - highlight all legal moves of once piece
                 """ + SET_TEXT_COLOR_WHITE);
         }
@@ -299,7 +298,6 @@ public class GamePlayUI {
         int row1 = tokens[0].charAt(1) - '0';
         int col2 = tokens[1].charAt(0) - 'a' + 1;
         int row2 = tokens[1].charAt(1) - '0';
-        //TODO: Pawn promotion piece
         ChessPosition start = new ChessPosition(row1, col1);
         ChessPosition end = new ChessPosition(row2, col2);
         boolean endOfBoardPawn = false;
@@ -427,6 +425,9 @@ public class GamePlayUI {
     }
 
     private static String resign(PrintStream out) {
+        if(observer) {
+            System.out.println("You are an observer and cannot resign.");
+            return "b";}
         out.println(SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? Resigning results in a forfeit.");
         Scanner scanner = new Scanner(System.in);
         String line = scanner.nextLine().toLowerCase();
