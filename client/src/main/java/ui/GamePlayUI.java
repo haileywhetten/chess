@@ -278,6 +278,26 @@ public class GamePlayUI {
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
                 drawChessBoard(out);
+                if(game.isInCheck(color)) {
+                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Warning: You are in check");
+                }
+                if(game.isInCheckmate(color)) {
+                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "You lose! You are in checkmate");
+                    redraw(out);
+                    return "leave";
+                }
+                if(game.isInStalemate(color)) {
+                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Stalemate! Game over");
+                    redraw(out);
+                    return "leave";
+                }
+                ChessGame.TeamColor oppColor;
+                if(color.equals(ChessGame.TeamColor.WHITE)) {oppColor = ChessGame.TeamColor.BLACK;}
+                else {oppColor = ChessGame.TeamColor.WHITE;}
+                if(game.isInCheckmate(oppColor)) {
+                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_YELLOW + "You win! Opponent is in checkmate.");
+                    return "leave";
+                }
             }
             else{
                 System.out.println("Too many parameters");
