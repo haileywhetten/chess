@@ -283,9 +283,9 @@ public class GamePlayUI {
         }
         String[] tokens = moveString.toLowerCase().split(":");
         int col1 = tokens[0].charAt(0) - 'a' + 1;
-        int row1 = tokens[0].charAt(1) - '0' + 1;
+        int row1 = tokens[0].charAt(1) - '0';
         int col2 = tokens[1].charAt(0) - 'a' + 1;
-        int row2 = tokens[1].charAt(1) - '0' + 1;
+        int row2 = tokens[1].charAt(1) - '0';
         //TODO: Pawn promotion piece
         return new ChessMove(new ChessPosition(row1, col1), new ChessPosition(row2, col2), null);
 
