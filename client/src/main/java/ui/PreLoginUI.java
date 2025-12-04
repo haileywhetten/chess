@@ -27,7 +27,7 @@ public class PreLoginUI {
                 result = eval(line);
                 if(result.equals("postLogin")) {
                     result = new PostLoginUI(facade, auth).run();
-                    result = "";
+                    //result = "";
                 }
             } catch (Throwable e) {
                 var msg = e.toString();

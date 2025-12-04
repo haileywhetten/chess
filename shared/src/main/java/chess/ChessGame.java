@@ -207,13 +207,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        var board1 = new ChessBoard();
-        board1.resetBoard();
-        if(isInCheck(teamColor)) {return false;}
-        else if (board.equals(board1)) {return false;}
+        if(isInCheck(teamColor)) {
+            return false;
+        }
         else{
-            var safeKingMoves = findValidKingMoves(teamColor);
-            return safeKingMoves.isEmpty();
+            return findValidMoves(teamColor).isEmpty();
         }
 
     }

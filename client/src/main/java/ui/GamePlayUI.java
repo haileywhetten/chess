@@ -278,7 +278,7 @@ public class GamePlayUI {
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
                 drawChessBoard(out);
-                if(game.isInCheck(color)) {
+                if(game.isInCheck(color) && !game.isInCheckmate(color)) {
                     out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Warning: You are in check");
                 }
                 if(game.isInCheckmate(color)) {
@@ -287,16 +287,16 @@ public class GamePlayUI {
                     return "leave";
                 }
                 if(game.isInStalemate(color)) {
-                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Stalemate! Game over");
+                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Stalemate! Game over. Type leave to leave");
                     redraw(out);
-                    return "leave";
+                    return "";
                 }
                 ChessGame.TeamColor oppColor;
                 if(color.equals(ChessGame.TeamColor.WHITE)) {oppColor = ChessGame.TeamColor.BLACK;}
                 else {oppColor = ChessGame.TeamColor.WHITE;}
                 if(game.isInCheckmate(oppColor)) {
                     out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_YELLOW + "You win! Opponent is in checkmate.");
-                    return "leave";
+                    return "";
                 }
             }
             else{
