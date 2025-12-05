@@ -56,7 +56,6 @@ public class GamePlayUI {
     }
 
     public static String help(PrintStream out) {
-        //TODO: Alternate menu for an observer
         if(!observer) {
             out.println(SET_TEXT_COLOR_BLUE + """
                 help - list possible commands
