@@ -66,8 +66,11 @@ public class UserGameCommand {
         if(getColorString().equals("white")) {
             return ChessGame.TeamColor.WHITE;
         }
-        else {
+        else if(getColorString().equals("black")){
             return ChessGame.TeamColor.BLACK;
+        }
+        else {
+            return null;
         }
     }
 

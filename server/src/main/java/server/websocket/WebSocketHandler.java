@@ -56,29 +56,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = dataAccess.getGame(command.getGameID());
         ChessGame game = gameData.game();
         String oppUsername;
-        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+        if (command.getColor() == ChessGame.TeamColor.WHITE) {
             oppUsername = gameData.blackUsername();
-        }
-        else {
-            oppUsername = gameData.whiteUsername();;
+        } else {
+            oppUsername = gameData.whiteUsername();
+            ;
         }
         return oppUsername;
     }
 
     private String getOpponentColorString(UserGameCommand command) {
-        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+        if (command.getColor() == ChessGame.TeamColor.WHITE) {
             return "Black";
-        }
-        else {
+        } else {
             return "White";
         }
     }
 
     private ChessGame.TeamColor getOpponentColor(UserGameCommand command) {
-        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+        if (command.getColor() == ChessGame.TeamColor.WHITE) {
             return ChessGame.TeamColor.BLACK;
-        }
-        else {
+        } else {
             return ChessGame.TeamColor.WHITE;
         }
     }
@@ -86,7 +84,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void connect(UserGameCommand command, Session session) throws Exception {
         connections.add(session);
         AuthData authData = dataAccess.getAuth(command.getAuthToken());
-        if(authData == null) {
+        if (authData == null) {
             ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: User is not authorized.");
             connections.reflect(session, errorMessage);
             throw new Exception();
@@ -96,7 +94,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(session, notif);
         GameData gameData = dataAccess.getGame(command.getGameID());
-        if(gameData == null) {
+        if (gameData == null) {
             ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game ID does not exist.");
             connections.reflect(session, errorMessage);
             throw new Exception();
@@ -109,16 +107,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(UserGameCommand command, Session session) throws Exception {
-        try{
-            if(command.getMove() != null) {
-                if(getOpponentUsername(command) == null) {
+        try {
+            if (command.getMove() != null) {
+                if (command.getColor().equals(null)) {
+                    ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: You are an observer and cannot move");
+                    connections.reflect(session, errorMessage);
+                    throw new Exception();
+                }
+                if (getOpponentUsername(command) == null) {
                     ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: You have no opponent to play against.");
                     connections.reflect(session, errorMessage);
                     throw new Exception();
                 }
                 GameData gameData = dataAccess.getGame(command.getGameID());
                 ChessGame game = gameData.game();
-                if(!game.isGameOver()) {
+                if (!game.isGameOver()) {
                     game.makeMove(command.getMove());
                     GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
                     GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
@@ -126,38 +129,35 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     String username = dataAccess.getAuth(command.getAuthToken()).username();
                     String message = String.format("%s has made the move %s", username, command.getMove().toString());
                     ServerMessage notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcast(null, notif);
+                    connections.broadcast(session, notif);
+                    String loadGame = new Gson().toJson(game);
+                    var gameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame);
+                    connections.broadcast(null, gameMessage);
                     String loser = null;
-                    if(game.isInCheckmate(command.getColor())) {
+                    if (game.isInCheckmate(command.getColor())) {
                         game.setGameOver(true);
                         loser = String.format("%s is in checkmate! %s wins! %s loses!", command.getColorString(), getOpponentUsername(command), username);
-                    }
-                    else if(game.isInCheckmate(getOpponentColor(command))) {
+                    } else if (game.isInCheckmate(getOpponentColor(command))) {
                         game.setGameOver(true);
                         loser = String.format("%s is in checkmate! %s wins! %s loses!", getOpponentColorString(command), username, getOpponentUsername(command));
-                    }
-                    else if(game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                    } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
                         loser = "Stalemate! Game over.";
-                    }
-                    else if(game.isInCheck(command.getColor())) {
+                    } else if (game.isInCheck(command.getColor())) {
                         loser = String.format("%s (%s) is in check!", command.getColorString(), username);
-                    }
-                    else if(game.isInCheck(getOpponentColor(command))) {
+                    } else if (game.isInCheck(getOpponentColor(command))) {
                         loser = String.format("%s (%s) is in check!", getOpponentColorString(command), getOpponentUsername(command));
                     }
-                    if(loser != null) {
+                    if (loser != null) {
                         ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser);
                         connections.broadcast(null, loserNotif);
                     }
-                }
-                else {
+                } else {
                     ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game is over. You cannot make a move.");
                     connections.reflect(session, errorMessage);
                     throw new Exception();
                 }
 
-            }
-            else {
+            } else {
                 ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: No move to make was given.");
                 connections.reflect(session, errorMessage);
                 throw new Exception();
@@ -171,42 +171,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void leave(UserGameCommand command, Session session) throws Exception {
         String username = dataAccess.getAuth(command.getAuthToken()).username();
+        GameData gameData = dataAccess.getGame(command.getGameID());
         var message = String.format("%s left the game", username);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        if (command.getColor() == ChessGame.TeamColor.WHITE) {
+            GameData newGameData = new GameData(gameData.gameId(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            GameInfo newGameInfo = new GameInfo(gameData.gameId(), null, gameData.blackUsername(), gameData.gameName());
+            dataAccess.updateGame(newGameData, newGameInfo);
+        } else if (command.getColor() == ChessGame.TeamColor.BLACK) {
+            GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), null, gameData.gameName());
+            dataAccess.updateGame(newGameData, newGameInfo);
+        }
         connections.broadcast(session, notification);
         connections.remove(session);
     }
 
     private void resign(UserGameCommand command, Session session) throws Exception {
         String username = dataAccess.getAuth(command.getAuthToken()).username();
-        ChessGame game = dataAccess.getGame(command.getGameID()).game();
+        GameData gameData = dataAccess.getGame(command.getGameID());
+        ChessGame game = gameData.game();
         game.resign();
+        GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
+        dataAccess.updateGame(newGameData, newGameInfo);
         var message = String.format("Game over! %s has resigned from the game", username);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, notification);
     }
-
-    /*private void enter(String visitorName, Session session) throws IOException {
-        connections.add(session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
-        connections.broadcast(session, notification);
-    }
-
-    private void exit(String visitorName, Session session) throws IOException {
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.broadcast(session, notification);
-        connections.remove(session);
-    }
-
-    public void makeNoise(String petName, String sound) throws ResponseException {
-        try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
-            connections.broadcast(null, notification);
-        } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-        }
-    }*/
 }
