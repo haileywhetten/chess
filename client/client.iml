@@ -12,6 +12,6 @@
     <orderEntry type="module" module-name="server" scope="TEST" />
     <orderEntry type="library" name="google.code.gson" level="project" />
     <orderEntry type="library" name="junit.jupiter" level="project" />
-    <orderEntry type="library" name="org.glassfish.tyrus.bundles:tyrus-standalone-client:2.1.4" level="project" />
+    <orderEntry type="library" exported="" name="org.glassfish.tyrus.bundles:tyrus-standalone-client:2.1.4" level="project" />
   </component>
 </module>

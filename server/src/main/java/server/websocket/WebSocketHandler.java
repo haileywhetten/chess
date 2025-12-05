@@ -52,6 +52,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
+    private String getOpponentUsername(UserGameCommand command) {
+        GameData gameData = dataAccess.getGame(command.getGameID());
+        ChessGame game = gameData.game();
+        String oppUsername;
+        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+            oppUsername = gameData.blackUsername();
+        }
+        else {
+            oppUsername = gameData.whiteUsername();;
+        }
+        return oppUsername;
+    }
+
+    private String getOpponentColorString(UserGameCommand command) {
+        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+            return "Black";
+        }
+        else {
+            return "White";
+        }
+    }
+
+    private ChessGame.TeamColor getOpponentColor(UserGameCommand command) {
+        if(command.getColor() == ChessGame.TeamColor.WHITE) {
+            return ChessGame.TeamColor.BLACK;
+        }
+        else {
+            return ChessGame.TeamColor.WHITE;
+        }
+    }
+
     private void connect(UserGameCommand command, Session session) throws Exception {
         connections.add(session);
         AuthData authData = dataAccess.getAuth(command.getAuthToken());
@@ -80,6 +111,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void makeMove(UserGameCommand command, Session session) throws Exception {
         try{
             if(command.getMove() != null) {
+                if(getOpponentUsername(command) == null) {
+                    ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: You have no opponent to play against.");
+                    connections.reflect(session, errorMessage);
+                    throw new Exception();
+                }
                 GameData gameData = dataAccess.getGame(command.getGameID());
                 ChessGame game = gameData.game();
                 if(!game.isGameOver()) {
@@ -92,16 +128,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     ServerMessage notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     connections.broadcast(null, notif);
                     String loser = null;
-                    if(game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                    if(game.isInCheckmate(command.getColor())) {
                         game.setGameOver(true);
-                        loser = "White is in checkmate! White team loses, game over!";
+                        loser = String.format("%s is in checkmate! %s wins! %s loses!", command.getColorString(), getOpponentUsername(command), username);
                     }
-                    else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                    else if(game.isInCheckmate(getOpponentColor(command))) {
                         game.setGameOver(true);
-                        loser = "Black is in checkmate! Black team loses, game over!";
+                        loser = String.format("%s is in checkmate! %s wins! %s loses!", getOpponentColorString(command), username, getOpponentUsername(command));
                     }
                     else if(game.isInStalemate(ChessGame.TeamColor.WHITE)) {
                         loser = "Stalemate! Game over.";
+                    }
+                    else if(game.isInCheck(command.getColor())) {
+                        loser = String.format("%s (%s) is in check!", command.getColorString(), username);
+                    }
+                    else if(game.isInCheck(getOpponentColor(command))) {
+                        loser = String.format("%s (%s) is in check!", getOpponentColorString(command), getOpponentUsername(command));
                     }
                     if(loser != null) {
                         ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser);
