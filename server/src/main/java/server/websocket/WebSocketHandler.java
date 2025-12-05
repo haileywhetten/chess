@@ -9,6 +9,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.AuthData;
 import model.GameData;
 import model.GameInfo;
 import org.eclipse.jetty.websocket.api.Session;
@@ -53,11 +54,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void connect(UserGameCommand command, Session session) throws Exception {
         connections.add(session);
-        String username = dataAccess.getAuth(command.getAuthToken()).username();
-        String message = String.format("%s joined the game as %s", username, command.getColor());
+        AuthData authData = dataAccess.getAuth(command.getAuthToken());
+        if(authData == null) {
+            ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: User is not authorized.");
+            connections.reflect(session, errorMessage);
+            throw new Exception();
+        }
+        String username = authData.username();
+        String message = String.format("%s joined the game as %s", username, command.getColorString());
         var notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(session, notif);
-        ChessGame game = dataAccess.getGame(command.getGameID()).game();
+        GameData gameData = dataAccess.getGame(command.getGameID());
+        if(gameData == null) {
+            ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game ID does not exist.");
+            connections.reflect(session, errorMessage);
+            throw new Exception();
+        }
+        ChessGame game = gameData.game();
         String loadGame = new Gson().toJson(game);
         var gameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame);
         connections.reflect(session, gameMessage);
@@ -69,21 +82,47 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if(command.getMove() != null) {
                 GameData gameData = dataAccess.getGame(command.getGameID());
                 ChessGame game = gameData.game();
-                game.makeMove(command.getMove());
-                GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
-                GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-                dataAccess.updateGame(newGameData, newGameInfo);
-                String username = dataAccess.getAuth(command.getAuthToken()).username();
-                String message = String.format("%s has made the move %s", username, command.getMove().toString());
-                ServerMessage notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(null, notif);
+                if(!game.isGameOver()) {
+                    game.makeMove(command.getMove());
+                    GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
+                    GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+                    dataAccess.updateGame(newGameData, newGameInfo);
+                    String username = dataAccess.getAuth(command.getAuthToken()).username();
+                    String message = String.format("%s has made the move %s", username, command.getMove().toString());
+                    ServerMessage notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    connections.broadcast(null, notif);
+                    String loser = null;
+                    if(game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                        game.setGameOver(true);
+                        loser = "White is in checkmate! White team loses, game over!";
+                    }
+                    else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                        game.setGameOver(true);
+                        loser = "Black is in checkmate! Black team loses, game over!";
+                    }
+                    else if(game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                        loser = "Stalemate! Game over.";
+                    }
+                    if(loser != null) {
+                        ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser);
+                        connections.broadcast(null, loserNotif);
+                    }
+                }
+                else {
+                    ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game is over. You cannot make a move.");
+                    connections.reflect(session, errorMessage);
+                    throw new Exception();
+                }
+
             }
             else {
-                System.out.println("No move to make was given.");
+                ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: No move to make was given.");
+                connections.reflect(session, errorMessage);
                 throw new Exception();
             }
         } catch (Exception ex) {
-            System.out.println("That is an invalid move.");
+            ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Invalid move.");
+            connections.reflect(session, errorMessage);
             throw new Exception();
         }
     }
@@ -96,7 +135,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.remove(session);
     }
 
-    private void resign(UserGameCommand command, Session session) throws Exception {}
+    private void resign(UserGameCommand command, Session session) throws Exception {
+        String username = dataAccess.getAuth(command.getAuthToken()).username();
+        ChessGame game = dataAccess.getGame(command.getGameID()).game();
+        game.resign();
+        var message = String.format("Game over! %s has resigned from the game", username);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(null, notification);
+    }
 
     /*private void enter(String visitorName, Session session) throws IOException {
         connections.add(session);

@@ -17,6 +17,7 @@ public class ChessGame {
     private ChessBoard board;
     private ChessPosition whiteKingPosition;
     private ChessPosition blackKingPosition;
+    private boolean gameOver;
 
     @Override
     public boolean equals(Object o) {
@@ -38,6 +39,7 @@ public class ChessGame {
         currentTeam = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+        setGameOver(false);
     }
 
     /**
@@ -55,6 +57,17 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         currentTeam = team;
     }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    //When a player resigns from the game, the game is over and no more moves can be played
+    public void resign() {setGameOver(true);}
 
     /**
      * Enum identifying the 2 possible teams in a chess game

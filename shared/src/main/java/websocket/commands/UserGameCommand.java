@@ -27,7 +27,7 @@ public class UserGameCommand {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.color = color;
+        this.color = color.toLowerCase();
         move = null;
     }
 
@@ -35,7 +35,7 @@ public class UserGameCommand {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.color = color;
+        this.color = color.toLowerCase();
         this.move = move;
     }
 
@@ -58,9 +58,18 @@ public class UserGameCommand {
         return gameID;
     }
 
-    public String getColor() {return color;}
+    public String getColorString() {return color;}
 
     public ChessMove getMove() {return move;}
+
+    public ChessGame.TeamColor getColor() {
+        if(getColorString().equals("white")) {
+            return ChessGame.TeamColor.WHITE;
+        }
+        else {
+            return ChessGame.TeamColor.BLACK;
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
