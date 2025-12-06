@@ -470,14 +470,14 @@ public class GamePlayUI implements ServerMessageHandler{
     public void loadGame(ServerMessage notification) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         drawHeaders(out);
-        currentGame = new Gson().fromJson(notification.getServerMessage(), ChessGame.class);
+        currentGame = notification.getGame();
         ChessBoard board = currentGame.getBoard();
         drawChessBoard(out, board);
     }
 
     @Override
     public void error(ServerMessage notification) {
-
+        System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getErrorMessage());
     }
 
     /*

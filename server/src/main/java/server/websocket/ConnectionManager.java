@@ -19,7 +19,8 @@ public class ConnectionManager {
     }
 
     public void broadcast(Session excludeSession, ServerMessage notification) throws IOException {
-        String msg = new Gson().toJson(notification);
+        Gson gson = new Gson().newBuilder().serializeNulls().create();
+        String msg = gson.toJson(notification);
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
@@ -30,7 +31,9 @@ public class ConnectionManager {
     }
 
     public void reflect(Session session, ServerMessage notification) throws Exception {
-        String msg = new Gson().toJson(notification);
+        Gson gson = new Gson().newBuilder().serializeNulls().create();
+        String msg = gson.toJson(notification);
         session.getRemote().sendString(msg);
+
     }
 }

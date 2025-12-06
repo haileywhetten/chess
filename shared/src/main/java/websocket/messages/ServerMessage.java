@@ -1,5 +1,8 @@
 package websocket.messages;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+
 import java.util.Objects;
 
 /**
@@ -9,8 +12,10 @@ import java.util.Objects;
  * methods.
  */
 public class ServerMessage {
-    ServerMessageType serverMessageType;
-    String message;
+    public ServerMessageType serverMessageType;
+    public String message;
+    public ChessGame game;
+    public String errorMessage;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -18,16 +23,45 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type, String message) {
+    public ServerMessage(ServerMessageType serverMessageType, String message, ChessGame game, String errorMessage) {
+        this.serverMessageType = serverMessageType;
+        this.message = message;
+        this.game = game;
+        this.errorMessage = errorMessage;
+
+    }
+
+    /*public ServerMessage(ServerMessageType type, String message) {
         this.serverMessageType = type;
         this.message = message;
     }
+
+    public ServerMessage(ServerMessageType type, ChessGame game) {
+        this.serverMessageType = type;
+        this.game = game;
+    }
+
+    public ServerMessage(String errorMessage) {
+        this.serverMessageType = ServerMessageType.ERROR;
+        this.errorMessage = errorMessage;
+    }*/
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
 
-    public String getServerMessage() {return message;}
+    public String getServerMessage() {
+        if(message != null) {
+            return message;
+        }
+        else {
+            return errorMessage;
+        }
+    }
+
+
+
+    public ChessGame getGame() {return game;}
 
     @Override
     public boolean equals(Object o) {

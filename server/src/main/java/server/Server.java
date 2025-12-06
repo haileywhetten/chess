@@ -7,6 +7,7 @@ import dataaccess.SqlDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
+import server.websocket.WebSocketHandler;
 import service.UserService;
 
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class Server {
 
     private final Javalin server;
     private final UserService userService;
+    private final WebSocketHandler handler = new WebSocketHandler();
 
     public Server() {
         //var dataAccess = new MemoryDataAccess();
@@ -33,12 +35,9 @@ public class Server {
         server.put("game", this::joinGame);
         server.get("game", this::listGames);
         server.ws("/ws", ws -> {
-            ws.onConnect(ctx -> {
-                ctx.enableAutomaticPings();
-                System.out.println("Websocket connected");
-            });
-            ws.onMessage(ctx -> ctx.send(ctx.message()));
-            ws.onClose(_ -> System.out.println("Websocket closed"));
+            ws.onConnect(handler);
+            ws.onMessage(handler);
+            ws.onClose(handler);
         });
 
     }
