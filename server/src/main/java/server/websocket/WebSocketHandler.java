@@ -160,7 +160,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     }
                     game.makeMove(command.getMove());
                     GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
-                    GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+                    GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(),
+                            gameData.blackUsername(), gameData.gameName(), game);
                     dataAccess.updateGame(newGameData, newGameInfo);
                     String username = dataAccess.getAuth(command.getAuthToken()).username();
                     String message = String.format("%s has made the move %s", username, command.getMove().toString());
@@ -171,10 +172,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     String loser = null;
                     if (game.isInCheckmate(getColor(command))) {
                         game.setGameOver(true);
-                        loser = String.format("%s is in checkmate! %s wins! %s loses!", getColorString(command), getOpponentUsername(command), username);
+                        loser = String.format("%s is in checkmate! %s wins! %s loses!",
+                                getColorString(command), getOpponentUsername(command), username);
                     } else if (game.isInCheckmate(getOpponentColor(command))) {
                         game.setGameOver(true);
-                        loser = String.format("%s is in checkmate! %s wins! %s loses!", getOpponentColorString(command), username, getOpponentUsername(command));
+                        loser = String.format("%s is in checkmate! %s wins! %s loses!",
+                                getOpponentColorString(command), username, getOpponentUsername(command));
                     } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
                         loser = "Stalemate! Game over.";
                     } else if (game.isInCheck(getColor(command))) {

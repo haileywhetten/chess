@@ -31,21 +31,6 @@ public class ServerMessage {
 
     }
 
-    /*public ServerMessage(ServerMessageType type, String message) {
-        this.serverMessageType = type;
-        this.message = message;
-    }
-
-    public ServerMessage(ServerMessageType type, ChessGame game) {
-        this.serverMessageType = type;
-        this.game = game;
-    }
-
-    public ServerMessage(String errorMessage) {
-        this.serverMessageType = ServerMessageType.ERROR;
-        this.errorMessage = errorMessage;
-    }*/
-
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
@@ -58,8 +43,6 @@ public class ServerMessage {
             return errorMessage;
         }
     }
-
-
 
     public ChessGame getGame() {return game;}
 

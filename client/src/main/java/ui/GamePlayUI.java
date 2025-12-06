@@ -20,8 +20,6 @@ public class GamePlayUI implements ServerMessageHandler{
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
     private static final String EMPTY = " ";
-    //static ChessGame game = null;
-    //static ChessBoard board = null;
     private static boolean observer;
     private static WebSocketFacade facade = null;
     private static int gameID;
@@ -356,55 +354,8 @@ public class GamePlayUI implements ServerMessageHandler{
             else if (params.length == 1) {
                 ChessPosition startPosition = getStartingPosition(params[0]);
                 drawHeaders(out);
-                for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+                highlightedSquares(out, startPosition);
 
-                    boolean white = ((boardRow + 1) % 2 == 1);
-                    int rowNumber;
-                    if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
-                    else {rowNumber = boardRow + 1;}
-                    out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
-                    for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
-
-                        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                            ChessPosition endPosition;
-                            if(color == ChessGame.TeamColor.BLACK) {
-                                endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
-                            }
-                            else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
-                            Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
-                            squares.add(startPosition);
-                            if(!squares.contains(endPosition)) {
-                                if(white) {setYellow(out);}
-                                else {setBlue(out);}
-                            }
-                            else {
-                                if(white) {out.print(SET_BG_COLOR_DARK_GREEN);}
-                                else {out.print(SET_BG_COLOR_GREEN);}
-                            }
-
-
-                            if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                                int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-                                int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
-                                out.print(EMPTY.repeat(prefixLength));
-                                out.print(getPiece(boardRow + 1, boardCol + 1, out, currentGame.getBoard()));
-                                out.print(EMPTY.repeat(suffixLength));
-                            }
-                            else {
-                                out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                            }
-
-                            setBlack(out);
-                            white = !white;
-                        }
-
-                        out.println(RESET_BG_COLOR);
-                    }
-
-                    if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                        setBlack(out);
-                    }
-                }
                 out.println(RESET_BG_COLOR);
             }
             else{
@@ -416,6 +367,58 @@ public class GamePlayUI implements ServerMessageHandler{
             out.println("Please enter a valid position");
         }
         return "";
+    }
+
+    private static void highlightedSquares (PrintStream out, ChessPosition startPosition) {
+        for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+
+            boolean white = ((boardRow + 1) % 2 == 1);
+            int rowNumber;
+            if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
+            else {rowNumber = boardRow + 1;}
+            out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
+            for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
+
+                for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                    ChessPosition endPosition;
+                    if(color == ChessGame.TeamColor.BLACK) {
+                        endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
+                    }
+                    else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
+                    Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
+                    squares.add(startPosition);
+                    if(!squares.contains(endPosition)) {
+                        if(white) {setYellow(out);}
+                        else {setBlue(out);}
+                    }
+                    else {
+                        if(white) {out.print(SET_BG_COLOR_DARK_GREEN);}
+                        else {out.print(SET_BG_COLOR_GREEN);}
+                    }
+
+
+                    if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
+                        int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
+                        int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
+                        out.print(EMPTY.repeat(prefixLength));
+                        out.print(getPiece(boardRow + 1, boardCol + 1, out, currentGame.getBoard()));
+                        out.print(EMPTY.repeat(suffixLength));
+                    }
+                    else {
+                        out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
+                    }
+
+                    setBlack(out);
+                    white = !white;
+                }
+
+                out.println(RESET_BG_COLOR);
+            }
+
+            if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
+                setBlack(out);
+            }
+        }
     }
 
     private static ChessPosition getStartingPosition(String positionString) throws Exception {
