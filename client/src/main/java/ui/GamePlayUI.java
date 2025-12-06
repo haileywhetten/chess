@@ -95,7 +95,7 @@ public class GamePlayUI implements ServerMessageHandler{
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch(cmd) {
-                case "leave" -> "leave";
+                case "leave" -> leave();
                 case "redraw" -> redraw(out);
                 case "move" -> move(params);
                 case "resign" -> resign(out);
@@ -276,9 +276,6 @@ public class GamePlayUI implements ServerMessageHandler{
     }
 
     private static String move(String[] params) {
-        /*if(observer) {
-            System.out.println("You are an observer and cannot move.");
-            return "b";}*/
         try {
             if (params.length == 0) {
                 System.out.println(SET_TEXT_COLOR_GREEN + "Not enough parameters");
@@ -371,53 +368,56 @@ public class GamePlayUI implements ServerMessageHandler{
 
     private static void highlightedSquares (PrintStream out, ChessPosition startPosition) {
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+            oneRowHighlightedSquares(out, startPosition, boardRow);
+        }
+    }
 
-            boolean white = ((boardRow + 1) % 2 == 1);
-            int rowNumber;
-            if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
-            else {rowNumber = boardRow + 1;}
-            out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
-            for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
+    private static void oneRowHighlightedSquares(PrintStream out, ChessPosition startPosition, int boardRow) {
+        boolean white = ((boardRow + 1) % 2 == 1);
+        int rowNumber;
+        if(color == ChessGame.TeamColor.WHITE) {rowNumber = 8 - boardRow;}
+        else {rowNumber = boardRow + 1;}
+        out.print(SET_TEXT_COLOR_GREEN + EMPTY + rowNumber + EMPTY);
+        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
 
-                for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                    ChessPosition endPosition;
-                    if(color == ChessGame.TeamColor.BLACK) {
-                        endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
-                    }
-                    else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
-                    Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
-                    squares.add(startPosition);
-                    if(!squares.contains(endPosition)) {
-                        if(white) {setYellow(out);}
-                        else {setBlue(out);}
-                    }
-                    else {
-                        if(white) {out.print(SET_BG_COLOR_DARK_GREEN);}
-                        else {out.print(SET_BG_COLOR_GREEN);}
-                    }
-
-
-                    if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                        int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-                        int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
-                        out.print(EMPTY.repeat(prefixLength));
-                        out.print(getPiece(boardRow + 1, boardCol + 1, out, currentGame.getBoard()));
-                        out.print(EMPTY.repeat(suffixLength));
-                    }
-                    else {
-                        out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                    }
-
-                    setBlack(out);
-                    white = !white;
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                ChessPosition endPosition;
+                if(color == ChessGame.TeamColor.BLACK) {
+                    endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
+                }
+                else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
+                Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
+                squares.add(startPosition);
+                if(!squares.contains(endPosition)) {
+                    if(white) {setYellow(out);}
+                    else {setBlue(out);}
+                }
+                else {
+                    if(white) {out.print(SET_BG_COLOR_DARK_GREEN);}
+                    else {out.print(SET_BG_COLOR_GREEN);}
                 }
 
-                out.println(RESET_BG_COLOR);
+
+                if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
+                    int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
+                    int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
+                    out.print(EMPTY.repeat(prefixLength));
+                    out.print(getPiece(boardRow + 1, boardCol + 1, out, currentGame.getBoard()));
+                    out.print(EMPTY.repeat(suffixLength));
+                }
+                else {
+                    out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
+                }
+
+                setBlack(out);
+                white = !white;
             }
 
-            if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                setBlack(out);
-            }
+            out.println(RESET_BG_COLOR);
+        }
+
+        if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
+            setBlack(out);
         }
     }
 
@@ -483,8 +483,14 @@ public class GamePlayUI implements ServerMessageHandler{
         System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
     }
 
-    /*
-    *
-    * */
+    public String leave() {
+        try{
+            facade.leaveGame(gameID, auth, getColorString());
+            return "leave";
+        } catch(Exception ex) {
+            System.out.println("Leave game failed");
+        }
+        return "leave";
+    }
 
 }
