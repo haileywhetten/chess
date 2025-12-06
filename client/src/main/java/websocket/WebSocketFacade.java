@@ -52,18 +52,18 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connectToGame(int gameID, String authToken, String color) throws Exception {
+    public void connectToGame(int gameID, String authToken) throws Exception {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, color);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new Exception("Could not connect to game");
         }
     }
 
-    public void makeMove(int gameID, String authToken, String color, ChessMove move) throws Exception {
+    public void makeMove(int gameID, String authToken, ChessMove move) throws Exception {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, color, move);
+            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new Exception("Move could not be made");
@@ -73,7 +73,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void leaveGame(int gameID, String authToken, String color) throws Exception {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, color);
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new Exception("Player could not leave the game");
@@ -82,7 +82,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(int gameID, String authToken, String color) throws Exception {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, color);
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new Exception("Player could not resign");

@@ -36,7 +36,7 @@ public class GamePlayUI implements ServerMessageHandler{
         facade = new WebSocketFacade(url, this);
         GamePlayUI.gameID = gameID;
         GamePlayUI.auth = auth;
-        facade.connectToGame(gameID, auth, getColorString());
+        facade.connectToGame(gameID, auth);
     }
 
     public static String getColorString() {
@@ -287,7 +287,7 @@ public class GamePlayUI implements ServerMessageHandler{
             }
             else if (params.length == 1) {
                 ChessMove move = getMove(params[0], currentGame.getBoard());
-                facade.makeMove(gameID, auth, getColorString(), move);
+                facade.makeMove(gameID, auth, move);
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
                 drawChessBoard(out, currentGame.getBoard());
@@ -477,7 +477,7 @@ public class GamePlayUI implements ServerMessageHandler{
 
     @Override
     public void error(ServerMessage notification) {
-        System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getErrorMessage());
+        System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
     }
 
     /*

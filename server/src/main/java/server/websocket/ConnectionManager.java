@@ -24,6 +24,7 @@ public class ConnectionManager {
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
+                    System.out.println(msg);
                     c.getRemote().sendString(msg);
                 }
             }
@@ -33,6 +34,7 @@ public class ConnectionManager {
     public void reflect(Session session, ServerMessage notification) throws Exception {
         Gson gson = new Gson().newBuilder().serializeNulls().create();
         String msg = gson.toJson(notification);
+        System.out.println(msg);
         session.getRemote().sendString(msg);
 
     }
