@@ -37,7 +37,7 @@ public class Server {
                 ctx.enableAutomaticPings();
                 System.out.println("Websocket connected");
             });
-            ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
+            ws.onMessage(ctx -> ctx.send(ctx.message()));
             ws.onClose(_ -> System.out.println("Websocket closed"));
         });
 

@@ -14,6 +14,7 @@ public class PostLoginUI {
     private List<GameInfo> gameList = null;
     private String gameName;
     private ChessGame.TeamColor color;
+    private int gameID;
 
     public PostLoginUI(ServerFacade facade, AuthData authData) {
         this.facade = facade;
@@ -30,11 +31,11 @@ public class PostLoginUI {
             try {
                 result = eval(line);
                 if(result.equals("gameplay")) {
-                    new GamePlayUI(gameName, color, false).run();
+                    new GamePlayUI(gameName, color, false, facade.getURL(), gameID, auth.authToken()).run();
                     help();
                 }
                 if(result.equals("observer")) {
-                    new GamePlayUI(gameName, color, true).run();
+                    new GamePlayUI(gameName, color, true, facade.getURL(), gameID, auth.authToken()).run();
                     help();
                 }
                 if(result.equals("preLogin")) {
@@ -154,6 +155,7 @@ public class PostLoginUI {
             else if (params.length == 2) {
                 var game = gameList.get(Integer.parseInt(params[0]) - 1);
                 gameName = game.gameName();
+                gameID = game.gameID();
                 int gameID = game.gameID();
                 if(params[1].equals("white")) {
                     color = ChessGame.TeamColor.WHITE;
@@ -182,6 +184,7 @@ public class PostLoginUI {
             }
             else if (params.length == 1) {
                 gameName = gameList.get(Integer.parseInt(params[0]) - 1).gameName();
+                gameID = gameList.get(Integer.parseInt(params[0]) - 1).gameID();
                 color = ChessGame.TeamColor.WHITE;
             }
             else{System.out.println("Too many parameters");

@@ -1,6 +1,7 @@
 package ui;
 
 import chess.*;
+import com.google.gson.Gson;
 import model.UserData;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
@@ -23,13 +24,24 @@ public class GamePlayUI implements ServerMessageHandler{
     //static ChessBoard board = null;
     private static boolean observer;
     private static WebSocketFacade facade = null;
+    private static int gameID;
+    private static String auth;
+    private static ChessGame currentGame;
 
 
-    public GamePlayUI(String gameName, ChessGame.TeamColor color, boolean observer, String url, int gameID) throws Exception {
+    public GamePlayUI(String gameName, ChessGame.TeamColor color, boolean observer, String url, int gameID, String auth) throws Exception {
         this.gameName = gameName;
         GamePlayUI.color = color;
         GamePlayUI.observer = observer;
         facade = new WebSocketFacade(url, this);
+        GamePlayUI.gameID = gameID;
+        GamePlayUI.auth = auth;
+        facade.connectToGame(gameID, auth, getColorString());
+    }
+
+    public static String getColorString() {
+        if(color.equals(ChessGame.TeamColor.WHITE)) {return "white";}
+        else {return "black";}
     }
 
     public void run() {
@@ -37,9 +49,6 @@ public class GamePlayUI implements ServerMessageHandler{
 
         out.print(ERASE_SCREEN);
 
-        drawHeaders(out);
-
-        drawChessBoard(out);
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -135,11 +144,11 @@ public class GamePlayUI implements ServerMessageHandler{
         setBlack(out);
     }
 
-    private static void drawChessBoard(PrintStream out) {
+    private static void drawChessBoard(PrintStream out, ChessBoard board) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
-            drawOneRowOfSquares(out, boardRow);
+            drawOneRowOfSquares(out, boardRow, board);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
                 setBlack(out);
@@ -148,7 +157,7 @@ public class GamePlayUI implements ServerMessageHandler{
         out.println(RESET_BG_COLOR);
     }
 
-    private static void drawOneRowOfSquares(PrintStream out, int boardRow) {
+    private static void drawOneRowOfSquares(PrintStream out, int boardRow, ChessBoard board) {
 
         boolean white = ((boardRow + 1) % 2 == 1);
         int rowNumber;
@@ -277,31 +286,11 @@ public class GamePlayUI implements ServerMessageHandler{
                 System.out.println(SET_TEXT_COLOR_GREEN + "Not enough parameters");
             }
             else if (params.length == 1) {
-                ChessMove move = getMove(params[0]);
-                game.makeMove(move);
+                ChessMove move = getMove(params[0], currentGame.getBoard());
+                facade.makeMove(gameID, auth, getColorString(), move);
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
-                drawChessBoard(out);
-                if(game.isInCheck(color) && !game.isInCheckmate(color)) {
-                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Warning: You are in check");
-                }
-                if(game.isInCheckmate(color)) {
-                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "You lose! You are in checkmate");
-                    redraw(out);
-                    return "leave";
-                }
-                if(game.isInStalemate(color)) {
-                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + "Stalemate! Game over. Type leave to leave");
-                    redraw(out);
-                    return "";
-                }
-                ChessGame.TeamColor oppColor;
-                if(color.equals(ChessGame.TeamColor.WHITE)) {oppColor = ChessGame.TeamColor.BLACK;}
-                else {oppColor = ChessGame.TeamColor.WHITE;}
-                if(game.isInCheckmate(oppColor)) {
-                    out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_YELLOW + "You win! Opponent is in checkmate.");
-                    return "";
-                }
+                drawChessBoard(out, currentGame.getBoard());
             }
             else{
                 System.out.println("Too many parameters");
@@ -313,7 +302,7 @@ public class GamePlayUI implements ServerMessageHandler{
         return "";
     }
 
-    private static ChessMove getMove(String moveString) throws Exception {
+    private static ChessMove getMove(String moveString, ChessBoard board) throws Exception {
         if(!moveString.matches("^[a-h][1-8]:[a-h][1-8]$")) {
             throw new Exception();
         }
@@ -382,7 +371,7 @@ public class GamePlayUI implements ServerMessageHandler{
                                 endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
                             }
                             else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
-                            Collection<ChessPosition> squares = squaresToHighlight(game.validMoves(startPosition));
+                            Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
                             squares.add(startPosition);
                             if(!squares.contains(endPosition)) {
                                 if(white) {setYellow(out);}
@@ -398,7 +387,7 @@ public class GamePlayUI implements ServerMessageHandler{
                                 int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
                                 int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
                                 out.print(EMPTY.repeat(prefixLength));
-                                out.print(getPiece(boardRow + 1, boardCol + 1, out, board));
+                                out.print(getPiece(boardRow + 1, boardCol + 1, out, currentGame.getBoard()));
                                 out.print(EMPTY.repeat(suffixLength));
                             }
                             else {
@@ -455,7 +444,7 @@ public class GamePlayUI implements ServerMessageHandler{
         String line = scanner.nextLine().toLowerCase();
         if(line.equals("yes")) {
             drawHeaders(out);
-            drawChessBoard(out);
+            drawChessBoard(out, currentGame.getBoard());
             out.println("You have resigned. Type leave to leave the game.");
         } else if (line.equals("no")) {
             out.println("You did not resign.");
@@ -468,13 +457,27 @@ public class GamePlayUI implements ServerMessageHandler{
     }
     private static String redraw(PrintStream out) {
         drawHeaders(out);
-        drawChessBoard(out);
+        drawChessBoard(out, currentGame.getBoard());
         return "";
     }
 
     @Override
     public void notify(ServerMessage notification) {
         System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
+    }
+
+    @Override
+    public void loadGame(ServerMessage notification) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        drawHeaders(out);
+        currentGame = new Gson().fromJson(notification.getServerMessage(), ChessGame.class);
+        ChessBoard board = currentGame.getBoard();
+        drawChessBoard(out, board);
+    }
+
+    @Override
+    public void error(ServerMessage notification) {
+
     }
 
     /*

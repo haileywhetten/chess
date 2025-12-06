@@ -20,6 +20,7 @@ import chess.*;
 import dataaccess.*;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
