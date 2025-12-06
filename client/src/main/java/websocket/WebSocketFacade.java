@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.*;
 import com.google.gson.Gson;
 import exception.ResponseException;
 //import org.eclipse.jetty.websocket.api.Session;
@@ -44,21 +45,40 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void connectToGame(int gameID, String authToken, String color) throws Exception {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, color);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (Exception ex) {
+            throw new Exception("Could not connect to game");
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
+    public void makeMove(int gameID, String authToken, String color, ChessMove move) throws Exception {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, color, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (Exception ex) {
+            throw new Exception("Move could not be made");
+        }
+
+    }
+
+    public void leaveGame(int gameID, String authToken, String color) throws Exception {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, color);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (Exception ex) {
+            throw new Exception("Player could not leave the game");
+        }
+    }
+
+    public void resign(int gameID, String authToken, String color) throws Exception {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, color);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (Exception ex) {
+            throw new Exception("Player could not resign");
         }
     }
 

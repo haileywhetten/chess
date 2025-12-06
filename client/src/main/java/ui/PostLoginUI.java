@@ -167,7 +167,7 @@ public class PostLoginUI {
             return "";}
 
         } catch(Exception ex) {
-            System.out.println("Error joining game - that team is already taken or you need to list the games first");
+            System.out.println("Error joining game");
             throw new Exception("Could not join game");
 
         }

@@ -19,6 +19,8 @@ public class ServerFacade {
     private final String serverUrl;
     //private final int port;
 
+    public String getURL() {return serverUrl;}
+
     public ServerFacade(/*String url,*/ int port) {
         //this.port = port;
         serverUrl = String.format("http://localhost:%d", port);

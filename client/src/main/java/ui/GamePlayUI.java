@@ -2,6 +2,9 @@ package ui;
 
 import chess.*;
 import model.UserData;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -9,22 +12,24 @@ import java.util.*;
 
 import static ui.EscapeSequences.*;
 
-public class GamePlayUI {
+public class GamePlayUI implements ServerMessageHandler{
     private final String gameName;
     private static ChessGame.TeamColor color = null;
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
     private static final String EMPTY = " ";
-    static ChessGame game = new ChessGame();
-    static ChessBoard board = game.getBoard();
+    //static ChessGame game = null;
+    //static ChessBoard board = null;
     private static boolean observer;
+    private static WebSocketFacade facade = null;
 
 
-    public GamePlayUI(String gameName, ChessGame.TeamColor color, boolean observer) {
+    public GamePlayUI(String gameName, ChessGame.TeamColor color, boolean observer, String url, int gameID) throws Exception {
         this.gameName = gameName;
         GamePlayUI.color = color;
         GamePlayUI.observer = observer;
+        facade = new WebSocketFacade(url, this);
     }
 
     public void run() {
@@ -264,9 +269,9 @@ public class GamePlayUI {
     }
 
     private static String move(String[] params) {
-        if(observer) {
+        /*if(observer) {
             System.out.println("You are an observer and cannot move.");
-            return "b";}
+            return "b";}*/
         try {
             if (params.length == 0) {
                 System.out.println(SET_TEXT_COLOR_GREEN + "Not enough parameters");
@@ -466,4 +471,14 @@ public class GamePlayUI {
         drawChessBoard(out);
         return "";
     }
+
+    @Override
+    public void notify(ServerMessage notification) {
+        System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
+    }
+
+    /*
+    *
+    * */
+
 }
