@@ -283,9 +283,6 @@ public class GamePlayUI implements ServerMessageHandler{
             else if (params.length == 1) {
                 ChessMove move = getMove(params[0], currentGame.getBoard());
                 facade.makeMove(gameID, auth, move);
-                /*var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-                drawHeaders(out);
-                drawChessBoard(out, currentGame.getBoard());*/
             }
             else{
                 System.out.println("Too many parameters");
@@ -474,12 +471,10 @@ public class GamePlayUI implements ServerMessageHandler{
         drawChessBoard(out, currentGame.getBoard());
         return "";
     }
-
     @Override
     public void notify(ServerMessage notification) {
         System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
     }
-
     @Override
     public void loadGame(ServerMessage notification) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -488,12 +483,10 @@ public class GamePlayUI implements ServerMessageHandler{
         ChessBoard board = currentGame.getBoard();
         drawChessBoard(out, board);
     }
-
     @Override
     public void error(ServerMessage notification) {
         System.out.println(SET_TEXT_COLOR_MAGENTA + notification.getServerMessage());
     }
-
     public String leave() {
         try{
             facade.leaveGame(gameID, auth, getColorString());
@@ -503,5 +496,4 @@ public class GamePlayUI implements ServerMessageHandler{
         }
         return "leave";
     }
-
 }

@@ -37,6 +37,7 @@ public class ConnectionManager {
     public void reflect(Session session, ServerMessage notification) throws Exception {
         Gson gson = new Gson().newBuilder().serializeNulls().create();
         String msg = gson.toJson(notification);
+        System.out.println(msg);
         session.getRemote().sendString(msg);
 
     }
