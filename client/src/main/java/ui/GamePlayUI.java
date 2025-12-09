@@ -283,9 +283,9 @@ public class GamePlayUI implements ServerMessageHandler{
             else if (params.length == 1) {
                 ChessMove move = getMove(params[0], currentGame.getBoard());
                 facade.makeMove(gameID, auth, move);
-                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+                /*var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 drawHeaders(out);
-                drawChessBoard(out, currentGame.getBoard());
+                drawChessBoard(out, currentGame.getBoard());*/
             }
             else{
                 System.out.println("Too many parameters");
@@ -386,8 +386,14 @@ public class GamePlayUI implements ServerMessageHandler{
                     endPosition = new ChessPosition(boardRow + 1, 8 - boardCol);
                 }
                 else {endPosition = new ChessPosition(8 - boardRow, boardCol + 1);}
-                Collection<ChessPosition> squares = squaresToHighlight(currentGame.validMoves(startPosition));
-                squares.add(startPosition);
+                Collection<ChessMove> movesToAdd = new ArrayList<>();
+                movesToAdd.add(new ChessMove(startPosition, startPosition, null));
+                Collection<ChessMove> valid = currentGame.validMoves(startPosition);
+                if (valid != null) {
+                    movesToAdd.addAll(valid);
+                }
+                Collection<ChessPosition> squares = squaresToHighlight(movesToAdd);
+                //squares.add(startPosition);
                 if(!squares.contains(endPosition)) {
                     if(white) {setYellow(out);}
                     else {setBlue(out);}
@@ -439,23 +445,28 @@ public class GamePlayUI implements ServerMessageHandler{
     }
 
     private static String resign(PrintStream out) {
-        if(observer) {
-            System.out.println("You are an observer and cannot resign.");
-            return "b";}
-        out.println(SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? Resigning results in a forfeit.");
-        Scanner scanner = new Scanner(System.in);
-        String line = scanner.nextLine().toLowerCase();
-        if(line.equals("yes")) {
-            drawHeaders(out);
-            drawChessBoard(out, currentGame.getBoard());
-            out.println("You have resigned. Type leave to leave the game.");
-        } else if (line.equals("no")) {
-            out.println("You did not resign.");
+        try {
+            if(observer) {
+                System.out.println("You are an observer and cannot resign.");
+                return "b";}
+            out.println(SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? Resigning results in a forfeit.");
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine().toLowerCase();
+            if(line.equals("yes")) {
+                drawHeaders(out);
+                drawChessBoard(out, currentGame.getBoard());
+                facade.resign(gameID, auth, getColorString());
+            } else if (line.equals("no")) {
+                out.println("You did not resign.");
+            }
+            else {
+                out.println("Invalid input. Try again");
+            }
+            help(out);
+            return"";
+        } catch (Exception ex){
+            out.println("Error resigning");
         }
-        else {
-            out.println("Invalid input. Try again");
-        }
-        help(out);
         return"";
     }
     private static String redraw(PrintStream out) {

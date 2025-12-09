@@ -12,16 +12,12 @@ import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import model.GameData;
 import model.GameInfo;
-import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import dataaccess.SqlDataAccess;
 import chess.*;
 import dataaccess.*;
-
-import java.io.IOException;
-import java.util.Scanner;
 
 import static websocket.messages.ServerMessage.ServerMessageType.ERROR;
 import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
@@ -145,14 +141,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     connections.reflect(session, errorMessage);
                     return;
                 }
-                if (getOpponentUsername(command) == null) {
-                    ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: You have no opponent to play against.");
-                    connections.reflect(session, errorMessage);
-                    return;
-                }
                 GameData gameData = dataAccess.getGame(command.getGameID());
                 ChessGame game = gameData.game();
-                if (!game.isGameOver()) {
+                if(game.isGameOver()) {
+                    ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: Game is over. You cannot make a move.");
+                    connections.reflect(session, errorMessage);
+                    return;
+                } else {
                     if(game.getTeamTurn() != getColor(command)) {
                         ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: It is not your turn.");
                         connections.reflect(session, errorMessage);
@@ -164,7 +159,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                             gameData.blackUsername(), gameData.gameName(), game);
                     dataAccess.updateGame(newGameData, newGameInfo);
                     String username = dataAccess.getAuth(command.getAuthToken()).username();
-                    String message = String.format("%s has made the move %s", username, command.getMove().toString());
+                    System.out.println(moveToString(command.getMove()));
+                    String message = String.format("%s has moved %s", username, moveToString(command.getMove()));
                     ServerMessage notif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message, null, null);
                     connections.broadcast(session, notif, command.getGameID());
                     var gameMessage = new ServerMessage(LOAD_GAME, null, game, null);
@@ -179,20 +175,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         loser = String.format("%s is in checkmate! %s wins! %s loses!",
                                 getOpponentColorString(command), username, getOpponentUsername(command));
                     } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                        game.setGameOver(true);
                         loser = "Stalemate! Game over.";
                     } else if (game.isInCheck(getColor(command))) {
                         loser = String.format("%s (%s) is in check!", getColorString(command), username);
                     } else if (game.isInCheck(getOpponentColor(command))) {
                         loser = String.format("%s (%s) is in check!", getOpponentColorString(command), getOpponentUsername(command));
                     }
+                    GameInfo newGameInfo2 = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
+                    GameData newGameData2 = new GameData(gameData.gameId(), gameData.whiteUsername(),
+                            gameData.blackUsername(), gameData.gameName(), game);
+                    dataAccess.updateGame(newGameData2, newGameInfo2);
                     if (loser != null) {
                         ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser, null, null);
                         connections.broadcast(null, loserNotif, command.getGameID());
                     }
-                } else {
-                    ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: Game is over. You cannot make a move.");
-                    connections.reflect(session, errorMessage);
-                    return;
                 }
 
             } else {
@@ -242,8 +239,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData newGameData = new GameData(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         GameInfo newGameInfo = new GameInfo(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
         dataAccess.updateGame(newGameData, newGameInfo);
-        var message = String.format("Game over! %s has resigned from the game", username);
+        var message = String.format("Game over! %s has resigned from the game. Type leave to leave", username);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message, null, null);
         connections.broadcast(null, notification, command.getGameID());
+    }
+
+    private String moveToString(ChessMove move) {
+        String moveString = move.toString();
+        String[] tokens = moveString.toLowerCase().split(":");
+        int colNum1 = Character.getNumericValue(tokens[0].charAt(2));
+        char colLetter1 = (char) ('a' + colNum1 - 1);
+        int colNum2 = Character.getNumericValue(tokens[1].charAt(1));
+        char colLetter2 = (char) ('a' + colNum2 - 1);
+        String letterMoveString = String.format("%c%c to %c%c", colLetter1, tokens[0].charAt(1), colLetter2, tokens[1].charAt(0));
+        return letterMoveString;
     }
 }
