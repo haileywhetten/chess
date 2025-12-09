@@ -135,19 +135,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.reflect(session, errorMessage);
                 return;
             }
+            GameData gameData = dataAccess.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+            if(game.isGameOver()) {
+                ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: Game is over. You cannot make a move.");
+                connections.reflect(session, errorMessage);
+                return;
+            }
             if (command.getMove() != null) {
                 if (getColor(command).equals(null)) {
                     ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: You are an observer and cannot move");
                     connections.reflect(session, errorMessage);
                     return;
                 }
-                GameData gameData = dataAccess.getGame(command.getGameID());
-                ChessGame game = gameData.game();
-                if(game.isGameOver()) {
-                    ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: Game is over. You cannot make a move.");
-                    connections.reflect(session, errorMessage);
-                    return;
-                } else {
                     if(game.getTeamTurn() != getColor(command)) {
                         ServerMessage errorMessage = new ServerMessage(ERROR, null, null, "Error: It is not your turn.");
                         connections.reflect(session, errorMessage);
@@ -190,7 +190,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser, null, null);
                         connections.broadcast(null, loserNotif, command.getGameID());
                     }
-                }
 
             } else {
                 ServerMessage errorMessage = new ServerMessage( ERROR, null, null,"Error: No move to make was given.");
