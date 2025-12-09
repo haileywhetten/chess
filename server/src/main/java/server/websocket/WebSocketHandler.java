@@ -186,7 +186,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     GameData newGameData2 = new GameData(gameData.gameId(), gameData.whiteUsername(),
                             gameData.blackUsername(), gameData.gameName(), game);
                     dataAccess.updateGame(newGameData2, newGameInfo2);
-                    if (loser != null) {
+                    if (loser != null && !game.isGameOver()) {
                         ServerMessage loserNotif = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, loser, null, null);
                         connections.broadcast(null, loserNotif, command.getGameID());
                     }
